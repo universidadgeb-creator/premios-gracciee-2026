@@ -39,6 +39,12 @@ const CONFIG = {
   // Nombres escritos TODO EN MAYÚSCULAS se muestran como "Juan Pérez de la Cruz".
   NOMBRES_EN_FORMATO_TITULO: true,
 
+  // En unidades donde Empoderamientos no separa por sucursal (Vivo 47), la sucursal de cada persona
+  // se toma de la base de Empoderamientos: primero de la pestaña de plantilla de cada club y, si no
+  // aparece ahí, de la sucursal que más ha usado en sus registros. Quien no aparezca va aquí:
+  SIN_SUCURSAL: 'Sin sucursal registrada',
+  PESTANAS_SUCURSAL: { 'NAC': 'Naciones Unidas', 'GMT': 'Gourmetería', 'VR': 'Valle Real' },
+
   // La lista se guarda en caché unos minutos para que el formulario cargue rápido.
   MINUTOS_CACHE: 5,
 
@@ -121,8 +127,10 @@ function abrirNominaciones() {
 // ─────────────────────────────── API DEL FORMULARIO ───────────────────────────────
 
 /** GET: valores, lista de colaboradores y si las nominaciones están abiertas. */
-function doGet() {
+function doGet(e) {
   try {
+    const p = (e && e.parameter) || {};
+    if (p.admin) return json_(administrar_(p));
     const cat = catalogo_();
     return json_({ ok: true, abierto: estaAbierto_(), valores: CONFIG.VALORES, unidades: cat.unidades });
   } catch (err) {
@@ -161,6 +169,29 @@ function doPost(e) {
   } catch (err) {
     return json_({ ok: false, error: err.message });
   }
+}
+
+/**
+ * Tareas de administración por URL (?admin=CLAVE&accion=...). La clave vive en Privado.gs,
+ * que no se publica. Acciones: "actualizar" = volver a cargar la lista desde Empoderamientos.
+ */
+function administrar_(p) {
+  const clave = typeof ADMIN_CLAVE === 'string' ? ADMIN_CLAVE : '';
+  if (!clave || p.admin !== clave) throw new Error('No autorizado.');
+  if (p.accion === 'actualizar') return { ok: true, resumen: importarColaboradores_(fuente_()) };
+  throw new Error('Acción desconocida.');
+}
+
+function itemsDeFormulario_(url) {
+  const resp = UrlFetchApp.fetch(url.replace(/\/edit.*$/, '/viewform'), { muteHttpExceptions: true, followRedirects: true });
+  const html = resp.getContentText();
+  const marca = 'FB_PUBLIC_LOAD_DATA_ = ';
+  const ini = html.indexOf(marca);
+  if (resp.getResponseCode() !== 200 || ini < 0) {
+    throw new Error('No pude leer el formulario (HTTP ' + resp.getResponseCode() + '). Revisa que el link sea ' +
+                    'el del formulario de Empoderamientos y que cualquiera con el link pueda responderlo.');
+  }
+  return JSON.parse(html.slice(ini + marca.length, html.indexOf(';</script>', ini)))[1][1];
 }
 
 function validar_(d) {
@@ -252,8 +283,7 @@ function catalogo_() {
     });
   });
 
-  const ordenados = mapa => Array.from(mapa.values()).sort(
-    (a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base', numeric: true }));
+  const ordenados = mapa => Array.from(mapa.values()).sort((a, b) => ordenAlfabetico_(a.nombre, b.nombre));
   const cat = {
     ignoradas: ignoradas,
     unidades: ordenados(raiz).map(u => ({
@@ -304,9 +334,76 @@ function importarColaboradores_(url) {
   CacheService.getScriptCache().remove(CLAVE_CACHE);
 
   const porUnidad = {};
-  filas.forEach(f => { porUnidad[f[0]] = (porUnidad[f[0]] || 0) + 1; });
+  const porSucursal = {};
+  filas.forEach(f => {
+    porUnidad[f[0]] = (porUnidad[f[0]] || 0) + 1;
+    if (f[1]) porSucursal[f[0] + ' · ' + f[1]] = (porSucursal[f[0] + ' · ' + f[1]] || 0) + 1;
+  });
   return 'Lista actualizada: ' + filas.length + ' colaboradores (' +
-    Object.keys(porUnidad).map(u => u + ' ' + porUnidad[u]).join(' · ') + ').';
+    Object.keys(porUnidad).map(u => u + ' ' + porUnidad[u]).join(' · ') + ').\nPor sucursal: ' +
+    Object.keys(porSucursal).map(s => s + ' ' + porSucursal[s]).join(' · ') + '.';
+}
+
+/**
+ * Sucursal de cada persona según la base de Empoderamientos (su ID vive en Privado.gs):
+ *  1. las pestañas de plantilla de cada club (CONFIG.PESTANAS_SUCURSAL), y si no aparece ahí,
+ *  2. la sucursal que más ha elegido en sus registros (pestaña "Base de Datos").
+ * Devuelve función (unidad, nombre, candidatas) → sucursal entre las candidatas, o null.
+ */
+function sucursalesDeRegistros_() {
+  const id = typeof BASE_EMPODERAMIENTOS_ID === 'string' ? BASE_EMPODERAMIENTOS_ID : '';
+  if (!id) return null;
+  const libro = SpreadsheetApp.openById(id);
+
+  // 1. Plantillas por club: cualquier celda con el nombre de la persona cuenta
+  const etiquetas = {};
+  Object.keys(CONFIG.PESTANAS_SUCURSAL).forEach(p => { etiquetas[clave_(p)] = CONFIG.PESTANAS_SUCURSAL[p]; });
+  const plantilla = {}; // claveNombre → [sucursales]
+  libro.getSheets().forEach(h => {
+    const sucursal = etiquetas[clave_(h.getName())];
+    if (!sucursal) return;
+    h.getDataRange().getDisplayValues().forEach(f => f.forEach(v => {
+      const k = clave_(v);
+      if (k && !/^[\d.,%\s-]*$/.test(k)) (plantilla[k] = plantilla[k] || []).push(sucursal);
+    }));
+  });
+
+  // 2. Registros: cuántas veces eligió cada sucursal
+  const conteo = {}; // "unidad|nombre" → { claveSucursal: veces }
+  const hoja = libro.getSheetByName('Base de Datos');
+  if (hoja && hoja.getLastRow() > 1) {
+    const n = hoja.getLastRow() - 1;
+    const encabezados = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getDisplayValues()[0].map(limpiar_);
+    const columnas = re => encabezados.map((t, i) => (re.test(t) ? i : -1)).filter(i => i >= 0);
+    const leer = c => hoja.getRange(2, c + 1, n, 1).getDisplayValues().map(f => limpiar_(f[0]));
+    const cUnidad = columnas(/^unidad/i)[0];
+    if (cUnidad !== undefined) {
+      const unidad = leer(cUnidad);
+      const sucursales = columnas(/^sucursal/i).map(leer);
+      const nombres = columnas(/^selecciona.*nombre/i).map(leer);
+      for (let r = 0; r < n; r++) {
+        const s = sucursales.map(col => col[r]).filter(Boolean)[0];
+        const p = nombres.map(col => col[r]).filter(Boolean)[0];
+        if (!unidad[r] || !s || !p) continue;
+        const k = clave_(unidad[r]) + '|' + clave_(p);
+        const porSuc = conteo[k] || (conteo[k] = {});
+        porSuc[clave_(s)] = (porSuc[clave_(s)] || 0) + 1;
+      }
+    }
+  }
+
+  return (u, nombre, candidatas) => {
+    const k = clave_(nombre);
+    const enPlantilla = candidatas.filter(c => (plantilla[k] || []).some(s => clave_(s) === clave_(c)));
+    if (enPlantilla.length === 1) return enPlantilla[0];
+    const porSuc = conteo[clave_(u) + '|' + k] || {};
+    let mejor = enPlantilla[0] || null, max = 0;
+    (enPlantilla.length ? enPlantilla : candidatas).forEach(c => {
+      const v = porSuc[clave_(c)] || 0;
+      if (v > max) { max = v; mejor = c; }
+    });
+    return mejor;
+  };
 }
 
 /**
@@ -314,20 +411,15 @@ function importarColaboradores_(url) {
  * nombres, y devuelve filas [Unidad, Sucursal, Área, Nombre].
  */
 function colaboradoresDeFormulario_(url) {
-  const resp = UrlFetchApp.fetch(url.replace(/\/edit.*$/, '/viewform'), { muteHttpExceptions: true, followRedirects: true });
-  const html = resp.getContentText();
-  const marca = 'FB_PUBLIC_LOAD_DATA_ = ';
-  const ini = html.indexOf(marca);
-  if (resp.getResponseCode() !== 200 || ini < 0) {
-    throw new Error('No pude leer el formulario (HTTP ' + resp.getResponseCode() + '). Revisa que el link sea ' +
-                    'el del formulario de Empoderamientos y que cualquiera con el link pueda responderlo.');
-  }
-  const datos = JSON.parse(html.slice(ini + marca.length, html.indexOf(';</script>', ini)));
-  return filasDesdeItems_(datos[1][1]);
+  return filasDesdeItems_(itemsDeFormulario_(url), sucursalesDeRegistros_());
 }
 
-/** Separada de la descarga para poder probarla sin internet. */
-function filasDesdeItems_(items) {
+/**
+ * Separada de la descarga para poder probarla sin internet.
+ * sucursalDe (opcional): (unidad, nombre, candidatas) → sucursal, para unidades cuyas listas de
+ * nombres no dependen de la sucursal (Vivo 47).
+ */
+function filasDesdeItems_(items, sucursalDe) {
   const SECCION = 8, OPCION_MULTIPLE = 2, DESPLEGABLE = 3, SIGUIENTE = -2;
   const posicion = {};
   items.forEach((it, i) => { posicion[it[0]] = i; });
@@ -375,39 +467,51 @@ function filasDesdeItems_(items) {
   const rutas = [];
   hallazgos.forEach(h => {
     const r = { unidad: h.ruta.unidad, sucursal: h.ruta.sucursal, area: h.ruta.area };
-    if (sucursalesPorLista[h.lista].size > 1) r.sucursal = '';
+    const candidatas = sucursalesPorLista[h.lista].size > 1 ? Array.from(sucursalesPorLista[h.lista]) : null;
+    if (candidatas) r.sucursal = '';
     const k = h.lista + '|' + r.unidad + '|' + r.sucursal + '|' + r.area;
     if (vistos.has(k)) return;
     vistos.add(k);
-    rutas.push({ lista: h.lista, ruta: r });
+    rutas.push({ lista: h.lista, ruta: r, candidatas: candidatas });
   });
 
-  // En una unidad que se organiza por áreas, una "sucursal" suelta (p. ej. Oficina Central) pasa a ser un área
-  const porAreas = {};
-  rutas.forEach(x => { if (!x.ruta.sucursal && x.ruta.area) porAreas[x.ruta.unidad] = true; });
-  rutas.forEach(x => {
-    if (porAreas[x.ruta.unidad] && x.ruta.sucursal && !x.ruta.area) {
-      x.ruta.area = x.ruta.sucursal;
-      x.ruta.sucursal = '';
-    }
-    x.ruta.sucursal = sinNombreDeUnidad_(x.ruta.sucursal, x.ruta.unidad);
-    x.ruta.area = sinNombreDeUnidad_(x.ruta.area, x.ruta.unidad);
-  });
+  // Sin datos de sucursal, una unidad que se organiza por áreas convierte su "sucursal" suelta
+  // (p. ej. Oficina Central) en un área más
+  if (!sucursalDe) {
+    const porAreas = {};
+    rutas.forEach(x => { if (!x.ruta.sucursal && x.ruta.area) porAreas[x.ruta.unidad] = true; });
+    rutas.forEach(x => {
+      if (porAreas[x.ruta.unidad] && x.ruta.sucursal && !x.ruta.area) {
+        x.ruta.area = x.ruta.sucursal;
+        x.ruta.sucursal = '';
+      }
+    });
+  }
 
   const filas = [];
   const unicos = new Set();
   rutas.forEach(x => opcionesDe(items[x.lista]).forEach(o => {
-    const nombre = formatoNombre_(limpiar_(o[0]));
+    const original = limpiar_(o[0]);
+    const nombre = formatoNombre_(original);
     if (!nombre) return;
-    const fila = [x.ruta.unidad, x.ruta.sucursal, x.ruta.area, nombre];
+    let sucursal = x.ruta.sucursal;
+    if (x.candidatas && sucursalDe) sucursal = sucursalDe(x.ruta.unidad, original, x.candidatas) || CONFIG.SIN_SUCURSAL;
+    const fila = [x.ruta.unidad, sinNombreDeUnidad_(sucursal, x.ruta.unidad), sinNombreDeUnidad_(x.ruta.area, x.ruta.unidad), nombre];
     const k = fila.map(clave_).join('|');
     if (unicos.has(k)) return;
     unicos.add(k);
     filas.push(fila);
   }));
   if (!filas.length) throw new Error('El formulario no tiene listas de nombres que yo reconozca.');
-  const orden = (a, b) => a.localeCompare(b, 'es', { sensitivity: 'base', numeric: true });
-  return filas.sort((a, b) => orden(a[0], b[0]) || orden(a[1], b[1]) || orden(a[2], b[2]) || orden(a[3], b[3]));
+  return filas.sort((a, b) => ordenAlfabetico_(a[0], b[0]) || ordenAlfabetico_(a[1], b[1]) ||
+    ordenAlfabetico_(a[2], b[2]) || ordenAlfabetico_(a[3], b[3]));
+}
+
+/** Orden alfabético en español ("Sucursal 2" antes que "Sucursal 10"); "Sin sucursal registrada" al final. */
+function ordenAlfabetico_(a, b) {
+  const finalA = a === CONFIG.SIN_SUCURSAL, finalB = b === CONFIG.SIN_SUCURSAL;
+  if (finalA !== finalB) return finalA ? 1 : -1;
+  return a.localeCompare(b, 'es', { sensitivity: 'base', numeric: true });
 }
 
 /** "Oficina Central Vivo47" dentro de Vivo 47 → "Oficina Central". */
