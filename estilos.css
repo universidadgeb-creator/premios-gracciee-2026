@@ -1,0 +1,377 @@
+/* Premios GRACCIEE 2026 · Formulario de nominaciones
+   Los colores están en las variables de :root; cámbialos ahí si hay colores de marca. */
+
+:root {
+  --fondo: #f6f3ec;
+  --tarjeta: #ffffff;
+  --tinta: #1c2140;            /* encabezado */
+  --texto: #23263a;
+  --tenue: #656a7d;
+  --linea: #e4ded1;
+  --oro: #b3862c;
+  --oro-texto: #86621a;        /* oro con contraste suficiente para texto */
+  --oro-suave: #f6eedb;
+  --boton: #1c2140;
+  --boton-texto: #ffffff;
+  --peligro: #b3261e;
+  --exito: #1f7a4d;
+  --anillo: 0 0 0 3px rgba(179, 134, 44, .35);
+  --radio: 16px;
+  --sombra: 0 1px 2px rgba(28, 33, 64, .05), 0 10px 28px rgba(28, 33, 64, .07);
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #10121a;
+    --tarjeta: #181b27;
+    --tinta: #0b0d15;
+    --texto: #eceef5;
+    --tenue: #a2a6b7;
+    --linea: #2a2e3f;
+    --oro: #d6a94f;
+    --oro-texto: #e4c07a;
+    --oro-suave: #2b2518;
+    --boton: #d6a94f;
+    --boton-texto: #16130b;
+    --peligro: #ff8a80;
+    --exito: #6fd3a0;
+    --sombra: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 28px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font: 16px/1.5 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Encabezado ── */
+.hero {
+  background: radial-gradient(900px 380px at 50% -10%, #2d3566 0%, var(--tinta) 65%);
+  color: #f4efe3;
+  padding: 44px 16px 92px;
+  text-align: center;
+}
+.hero__inner { max-width: 640px; margin: 0 auto; }
+.hero p, h1, h2, legend { text-wrap: balance; }
+.hero__eyebrow {
+  margin: 0 0 14px;
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #cdbf9c;
+}
+h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(34px, 8vw, 54px);
+  line-height: 1.05;
+}
+h1 span { color: #e2bd6b; }
+.hero__sub {
+  margin: 6px 0 20px;
+  font-family: var(--serif);
+  font-size: 21px;
+  color: #e6dabd;
+}
+.letras {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+}
+.letras li {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 32px;
+  border: 1px solid rgba(226, 189, 107, .45);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #e2bd6b;
+}
+.hero__texto {
+  max-width: 520px;
+  margin: 0 auto;
+  font-size: 15px;
+  color: #d6d1c4;
+}
+
+/* ── Contenedor y tarjetas ── */
+.contenedor {
+  position: relative;
+  max-width: 640px;
+  margin: -60px auto 0;
+  padding: 0 16px 40px;
+}
+.tarjeta {
+  margin: 0 0 16px;
+  padding: 22px 20px 20px;
+  background: var(--tarjeta);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+fieldset.tarjeta { min-width: 0; }
+legend {
+  float: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+legend + * { clear: both; }
+.paso__num {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--oro-suave);
+  color: var(--oro-texto);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ── Campos ── */
+label, .etiqueta {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 500;
+}
+input[type="text"], input[type="search"], select, textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 14px;
+  font: inherit;
+  color: var(--texto);
+  background: var(--tarjeta);
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+  transition: border-color .15s, box-shadow .15s;
+}
+select {
+  appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238a8ea0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+}
+textarea { resize: vertical; min-height: 130px; }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--oro);
+  box-shadow: var(--anillo);
+}
+[aria-invalid="true"] { border-color: var(--peligro) !important; }
+.campo { margin: 0 0 16px; }
+.fijo {
+  margin: 0;
+  padding: 11px 14px;
+  border: 1px dashed var(--linea);
+  border-radius: 12px;
+  color: var(--tenue);
+}
+.contador { margin: 6px 0 0; text-align: right; font-size: 13px; color: var(--tenue); }
+.error { margin: 8px 0 0; font-size: 14px; color: var(--peligro); }
+.error:empty { display: none; }
+.error--general { margin: 0 0 12px; text-align: center; }
+
+/* ── Chips (valores y unidades) ── */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { position: relative; margin: 0; font-weight: 400; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip__caja {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 14px 6px 6px;
+  border: 1px solid var(--linea);
+  border-radius: 999px;
+  background: var(--tarjeta);
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .15s, background-color .15s;
+}
+.chip--simple .chip__caja { padding-left: 16px; padding-right: 16px; }
+#unidades { display: grid; grid-template-columns: repeat(2, 1fr); }
+#unidades .chip__caja { width: 100%; justify-content: center; }
+@media (min-width: 480px) { #unidades { grid-template-columns: repeat(4, 1fr); } }
+.chip__letra {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--oro-suave);
+  color: var(--oro-texto);
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 16px;
+}
+.chip__ya { font-size: 12px; color: var(--exito); }
+.chip:hover .chip__caja { border-color: var(--oro); }
+.chip input:checked + .chip__caja {
+  border-color: var(--oro);
+  background: var(--oro-suave);
+  font-weight: 600;
+}
+.chip input:checked + .chip__caja .chip__letra { background: var(--oro); color: #fff; }
+.chip input:focus-visible + .chip__caja { box-shadow: var(--anillo); }
+
+/* ── Buscador ── */
+.separador {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 12px;
+  font-size: 13px;
+  color: var(--tenue);
+}
+.separador::before, .separador::after { content: ""; flex: 1; height: 1px; background: var(--linea); }
+.resultados { margin: 8px 0 0; padding: 0; list-style: none; }
+.resultados:empty { display: none; }
+.resultado {
+  display: block;
+  width: 100%;
+  margin: 0 0 6px;
+  padding: 10px 14px;
+  text-align: left;
+  font: inherit;
+  color: var(--texto);
+  background: var(--tarjeta);
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.resultado:hover, .resultado:focus-visible { border-color: var(--oro); outline: none; box-shadow: var(--anillo); }
+.resultado small { display: block; color: var(--tenue); font-size: 13px; }
+.sin-resultados { padding: 8px 2px; font-size: 14px; color: var(--tenue); }
+
+/* ── Persona elegida ── */
+.elegida {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--oro);
+  border-radius: 14px;
+  background: var(--oro-suave);
+}
+.elegida p { margin: 0; }
+.elegida__etiqueta { font-size: 13px; color: var(--oro-texto); font-weight: 600; }
+.elegida__nombre { font-family: var(--serif); font-size: 21px; font-weight: 600; line-height: 1.25; }
+.elegida__ruta { font-size: 14px; color: var(--tenue); }
+
+/* ── Botones ── */
+.boton {
+  display: block;
+  width: 100%;
+  min-height: 54px;
+  padding: 14px 20px;
+  font: 600 17px var(--sans);
+  color: var(--boton-texto);
+  background: var(--boton);
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform .1s, opacity .15s;
+}
+.boton:hover { opacity: .92; }
+.boton:active { transform: translateY(1px); }
+.boton:focus-visible { outline: none; box-shadow: var(--anillo); }
+.boton[disabled] { opacity: .6; cursor: progress; }
+.boton--secundario { background: transparent; color: var(--texto); border: 1px solid var(--linea); }
+.enlace {
+  flex: none;
+  padding: 4px 2px;
+  font: 600 15px var(--sans);
+  color: var(--oro-texto);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.nota { margin: 12px 0 0; text-align: center; font-size: 14px; color: var(--tenue); }
+
+/* ── Estados ── */
+.estado { text-align: center; padding: 36px 20px; }
+.estado h2, .gracias h2 { margin: 0 0 8px; font-family: var(--serif); font-size: 24px; }
+.estado p { margin: 0 0 12px; color: var(--tenue); }
+.estado .boton { max-width: 240px; margin: 8px auto 0; }
+.detalle { font-size: 13px; }
+.giro {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 10px;
+  border: 3px solid var(--oro-suave);
+  border-top-color: var(--oro);
+  border-radius: 50%;
+  animation: girar .8s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+
+.gracias { text-align: center; padding: 36px 20px; outline: none; }
+.gracias__icono {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: var(--oro);
+  color: #fff;
+  font-size: 30px;
+  font-weight: 700;
+}
+.gracias p { margin: 0 0 20px; color: var(--tenue); }
+.gracias strong { color: var(--texto); }
+
+.aviso {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--oro-texto);
+  background: var(--oro-suave);
+  border: 1px solid var(--oro);
+  border-radius: 12px;
+}
+.pie { padding: 0 16px 32px; text-align: center; font-size: 13px; color: var(--tenue); }
+.trampa { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.solo-lectores {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+@media (min-width: 560px) {
+  .tarjeta { padding: 28px 28px 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

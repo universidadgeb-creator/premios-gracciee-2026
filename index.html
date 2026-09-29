@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nominaciones · Premios GRACCIEE 2026</title>
+  <meta name="description" content="Nomina a una compañera o compañero en los Premios GRACCIEE 2026 de Grupo Empresarial Bienestar.">
+  <meta name="theme-color" content="#1c2140">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231c2140'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='38' font-weight='700' fill='%23e2bd6b'%3EG%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__inner">
+      <p class="hero__eyebrow">Grupo Empresarial Bienestar · Capital Humano</p>
+      <h1>Premios <span>GRACCIEE</span> 2026</h1>
+      <p class="hero__sub">Nominaciones</p>
+      <ol class="letras" aria-hidden="true">
+        <li>G</li><li>R</li><li>A</li><li>C</li><li>C</li><li>I</li><li>E</li><li>E</li>
+      </ol>
+      <p class="hero__texto">Gracias por esa chispa de consciencia, amor y acción que transforma lo ordinario en extraordinario e impulsa 1% que lo cambia todo.</p>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <p id="aviso-demo" class="aviso" hidden>
+      <strong>Vista de prueba.</strong> Este formulario todavía no está conectado a la hoja: las nominaciones no se guardan.
+    </p>
+
+    <section id="cargando" class="tarjeta estado" aria-live="polite">
+      <span class="giro" aria-hidden="true"></span>
+      <p>Cargando la lista de colaboradores…</p>
+    </section>
+
+    <section id="error-carga" class="tarjeta estado" hidden>
+      <h2>No pudimos cargar el formulario</h2>
+      <p>Revisa tu conexión a internet e inténtalo de nuevo.</p>
+      <p class="detalle" id="error-carga-detalle"></p>
+      <button type="button" class="boton boton--secundario" id="reintentar">Reintentar</button>
+    </section>
+
+    <section id="cerrado" class="tarjeta estado" hidden>
+      <h2>Las nominaciones están cerradas</h2>
+      <p>¡Gracias por participar en los Premios GRACCIEE 2026!</p>
+    </section>
+
+    <form id="formulario" novalidate hidden>
+      <fieldset class="tarjeta paso">
+        <legend><span class="paso__num">1</span>¿Quién eres?</legend>
+        <label for="nominador">Tu nombre completo</label>
+        <input id="nominador" name="nominador" type="text" autocomplete="name" maxlength="120"
+               aria-describedby="error-nominador" required>
+        <p class="error" id="error-nominador"></p>
+      </fieldset>
+
+      <fieldset class="tarjeta paso" aria-describedby="error-valor">
+        <legend><span class="paso__num">2</span>¿En qué valor quieres nominar?</legend>
+        <div class="chips" id="valores"></div>
+        <p class="error" id="error-valor"></p>
+      </fieldset>
+
+      <fieldset class="tarjeta paso" aria-describedby="error-persona">
+        <legend><span class="paso__num">3</span>¿A quién nominas?</legend>
+
+        <div id="selector">
+          <div class="campo">
+            <span class="etiqueta" id="etiqueta-unidad">Unidad de Negocio</span>
+            <div class="chips" id="unidades" role="radiogroup" aria-labelledby="etiqueta-unidad"></div>
+          </div>
+          <div class="campo" id="campo-sucursal" hidden>
+            <label for="sucursal">Sucursal</label>
+            <select id="sucursal"></select>
+            <p class="fijo" id="fijo-sucursal" hidden></p>
+          </div>
+          <div class="campo" id="campo-area" hidden>
+            <label for="area">Área</label>
+            <select id="area"></select>
+            <p class="fijo" id="fijo-area" hidden></p>
+          </div>
+          <div class="campo" id="campo-persona" hidden>
+            <label for="persona">Persona</label>
+            <select id="persona"></select>
+          </div>
+
+          <div class="separador"><span>o búscala por nombre</span></div>
+          <div class="buscador">
+            <label for="buscar" class="solo-lectores">Buscar por nombre</label>
+            <input id="buscar" type="search" placeholder="Escribe su nombre o apellido" autocomplete="off"
+                   aria-controls="resultados">
+            <ul id="resultados" class="resultados" aria-live="polite"></ul>
+          </div>
+        </div>
+
+        <div id="elegida" class="elegida" hidden>
+          <div>
+            <p class="elegida__etiqueta">Nominas a</p>
+            <p class="elegida__nombre" id="elegida-nombre"></p>
+            <p class="elegida__ruta" id="elegida-ruta"></p>
+          </div>
+          <button type="button" class="enlace" id="cambiar">Cambiar</button>
+        </div>
+        <p class="error" id="error-persona"></p>
+      </fieldset>
+
+      <fieldset class="tarjeta paso">
+        <legend><span class="paso__num">4</span>Cuéntanos por qué</legend>
+        <label for="motivo">¿Qué hizo esta persona que refleje este valor?</label>
+        <textarea id="motivo" name="motivo" rows="5" maxlength="3000" aria-describedby="error-motivo" required></textarea>
+        <p class="contador"><span id="cuenta">0</span> / 3000</p>
+        <p class="error" id="error-motivo"></p>
+      </fieldset>
+
+      <div class="trampa" aria-hidden="true">
+        <label>Sitio web <input name="sitio_web" id="sitio_web" type="text" tabindex="-1" autocomplete="off"></label>
+      </div>
+
+      <p class="error error--general" id="error-envio" role="alert"></p>
+      <button class="boton" type="submit" id="enviar">Enviar nominación</button>
+      <p class="nota">Cada envío es una nominación: un valor y una persona. Al terminar podrás nominar en otro valor.</p>
+    </form>
+
+    <section id="gracias" class="tarjeta gracias" hidden tabindex="-1">
+      <div class="gracias__icono" aria-hidden="true">✓</div>
+      <h2>¡Gracias por tu nominación!</h2>
+      <p id="resumen"></p>
+      <button type="button" class="boton" id="otra">Nominar en otro valor</button>
+    </section>
+  </main>
+
+  <footer class="pie">Universidad GEB · Premios GRACCIEE 2026</footer>
+
+  <noscript><p class="aviso">Activa JavaScript en tu navegador para usar este formulario.</p></noscript>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

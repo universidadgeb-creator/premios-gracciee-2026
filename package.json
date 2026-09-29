@@ -1,0 +1,15 @@
+{
+  "name": "premios-gracciee-2026",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Formulario web de nominaciones Premios GRACCIEE 2026 (GitHub Pages + Apps Script)",
+  "scripts": {
+    "login": "clasp login",
+    "vincular": "node vincular.js",
+    "subir": "clasp push --force",
+    "archivos": "clasp show-file-status"
+  },
+  "devDependencies": {
+    "@google/clasp": "^3.4.1"
+  }
+}
