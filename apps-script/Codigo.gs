@@ -71,7 +71,10 @@ function onOpen() {
   }
 }
 
-/** Crea las pestañas que faltan. Ejecútala una vez desde el editor para autorizar el script. */
+/**
+ * Crea las pestañas que faltan y, si ya se conoce el link de Empoderamientos, carga la lista.
+ * Ejecútala una vez desde el editor para autorizar el script.
+ */
 function configurar() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const colab = ss.getSheetByName(CONFIG.HOJA_COLABORADORES) || ss.insertSheet(CONFIG.HOJA_COLABORADORES, 0);
@@ -82,9 +85,22 @@ function configurar() {
   }
   prepararHojas_(ss);
   CacheService.getScriptCache().remove(CLAVE_CACHE);
-  avisar_('Pestañas listas.\n\nSiguiente paso: recarga la hoja y usa GRACCIEE > Actualizar lista desde ' +
-    'Empoderamientos. Después: Implementar > Nueva implementación > Aplicación web ' +
+  let lista = '';
+  if (fuente_() && colab.getLastRow() < 2) lista = '\n\n' + importarColaboradores_(fuente_());
+  avisar_('Pestañas listas.' + (lista ||
+    '\n\nSiguiente paso: recarga la hoja y usa GRACCIEE > Actualizar lista desde Empoderamientos.') +
+    '\n\nPara publicar: Implementar > Nueva implementación > Aplicación web ' +
     '(Ejecutar como: Yo · Acceso: Cualquier usuario) y copia la URL /exec a config.js.');
+}
+
+/**
+ * Link del formulario de Empoderamientos: el guardado desde el menú o, si existe, el del archivo
+ * privado Privado.gs (const FUENTE_EMPODERAMIENTOS = '...'), que no se sube a GitHub.
+ */
+function fuente_() {
+  const guardado = PropertiesService.getScriptProperties().getProperty(PROP.FUENTE);
+  if (guardado) return guardado;
+  return typeof FUENTE_EMPODERAMIENTOS === 'string' ? FUENTE_EMPODERAMIENTOS : '';
 }
 
 function refrescarLista() {
@@ -209,7 +225,12 @@ function catalogo_() {
   const guardado = cache.get(CLAVE_CACHE);
   if (guardado) return JSON.parse(guardado);
 
-  const hoja = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.HOJA_COLABORADORES);
+  let hoja = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.HOJA_COLABORADORES);
+  // Primera vez: si la lista está vacía y se conoce el link de Empoderamientos, se carga sola
+  if ((!hoja || hoja.getLastRow() < 2) && fuente_()) {
+    importarColaboradores_(fuente_());
+    hoja = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.HOJA_COLABORADORES);
+  }
   if (!hoja) throw new Error('No encontré la pestaña "' + CONFIG.HOJA_COLABORADORES + '".');
 
   // Árbol sin repetidos (ignora mayúsculas, acentos y espacios de más).
@@ -254,8 +275,7 @@ function catalogo_() {
  * El link se pide una vez y se guarda en la configuración del script (no queda en el código).
  */
 function actualizarListaDesdeEmpoderamientos() {
-  const props = PropertiesService.getScriptProperties();
-  let url = props.getProperty(PROP.FUENTE);
+  let url = fuente_();
   if (!url) {
     let ui;
     try { ui = SpreadsheetApp.getUi(); } catch (e) {
@@ -265,8 +285,13 @@ function actualizarListaDesdeEmpoderamientos() {
     if (r.getSelectedButton() !== ui.Button.OK) return;
     url = r.getResponseText().trim();
   }
+  avisar_(importarColaboradores_(url));
+}
+
+/** Reescribe la pestaña Colaboradores con la lista del formulario. Devuelve un resumen. */
+function importarColaboradores_(url) {
   const filas = colaboradoresDeFormulario_(url);
-  props.setProperty(PROP.FUENTE, url);
+  PropertiesService.getScriptProperties().setProperty(PROP.FUENTE, url);
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const hoja = ss.getSheetByName(CONFIG.HOJA_COLABORADORES) || ss.insertSheet(CONFIG.HOJA_COLABORADORES, 0);
@@ -275,12 +300,13 @@ function actualizarListaDesdeEmpoderamientos() {
     .setFontWeight('bold').setBackground('#f1f3f4');
   hoja.setFrozenRows(1);
   hoja.getRange(2, 1, filas.length, 4).setValues(filas);
+  prepararHojas_(ss);
   CacheService.getScriptCache().remove(CLAVE_CACHE);
 
   const porUnidad = {};
   filas.forEach(f => { porUnidad[f[0]] = (porUnidad[f[0]] || 0) + 1; });
-  avisar_('Lista actualizada: ' + filas.length + ' colaboradores (' +
-    Object.keys(porUnidad).map(u => u + ' ' + porUnidad[u]).join(' · ') + ').');
+  return 'Lista actualizada: ' + filas.length + ' colaboradores (' +
+    Object.keys(porUnidad).map(u => u + ' ' + porUnidad[u]).join(' · ') + ').';
 }
 
 /**

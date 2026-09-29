@@ -44,9 +44,13 @@ Todo con la cuenta **@gebienestar.com.mx** (de preferencia en una ventana de inc
 - **"Cannot call SpreadsheetApp.getUi()…"**: ejecutaste `onOpen`; elige `configurar`.
 - **Errores de permisos o "No item with the given ID"**: Apps Script está usando tu cuenta personal; usa una ventana de incógnito solo con la cuenta @gebienestar.
 
-## Opcional: subir el Apps Script con clasp
-- Una vez: activa **API de Google Apps Script** en https://script.google.com/home/usersettings y ejecuta `npm install`.
-- `npm run login` → elige la cuenta @gebienestar · `npm run vincular -- "LINK_DE_LA_HOJA"` · `npm run subir`.
+## Instalación actual
+- Hoja: **Premios GRACCIEE 2026 · Nominaciones** (Drive de universidad@gebienestar.com.mx), con su Apps Script vinculado.
+- El link del formulario de Empoderamientos vive en `apps-script/Privado.gs`, que se sube a Apps Script pero **no** a GitHub. Si la pestaña Colaboradores está vacía, el script la llena solo desde ese link.
+
+## Subir cambios del Apps Script con clasp
+- Una vez: activa **API de Google Apps Script** en https://script.google.com/home/usersettings, ejecuta `npm install` y `npm run login` (cuenta @gebienestar).
+- `npm run subir` sube `apps-script/` y luego `npx clasp create-deployment -i <ID de la implementación>` publica la nueva versión con la misma URL.
 
 ## Otros archivos
 - `plantilla/`: plantilla para llenar Colaboradores a mano (Unidad · Sucursal · Área · Nombre; Sucursal y Área pueden ir vacías).
