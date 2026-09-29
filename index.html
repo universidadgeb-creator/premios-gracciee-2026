@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nominaciones · Premios GRACCIEE 2026</title>
-  <meta name="description" content="Nomina a una compañera o compañero en los Premios GRACCIEE 2026 de Grupo Empresarial Bienestar.">
+  <meta name="description" content="Nomina a tus compañeras y compañeros en los 9 valores de los Premios GRACCIEE 2026 de Grupo Empresarial Bienestar.">
   <meta name="theme-color" content="#1c2140">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231c2140'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='38' font-weight='700' fill='%23e2bd6b'%3EG%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,90 +47,67 @@
       <p>¡Gracias por participar en los Premios GRACCIEE 2026!</p>
     </section>
 
-    <form id="formulario" novalidate hidden>
-      <fieldset class="tarjeta paso">
-        <legend><span class="paso__num">1</span>¿Quién eres?</legend>
-        <label for="nominador">Tu nombre completo</label>
-        <input id="nominador" name="nominador" type="text" autocomplete="name" maxlength="120"
-               aria-describedby="error-nominador" required>
-        <p class="error" id="error-nominador"></p>
-      </fieldset>
-
-      <fieldset class="tarjeta paso" aria-describedby="error-valor">
-        <legend><span class="paso__num">2</span>¿En qué valor quieres nominar?</legend>
-        <div class="chips" id="valores"></div>
-        <p class="error" id="error-valor"></p>
-      </fieldset>
-
-      <fieldset class="tarjeta paso" aria-describedby="error-persona">
-        <legend><span class="paso__num">3</span>¿A quién nominas?</legend>
-
-        <div id="selector">
-          <div class="campo">
-            <span class="etiqueta" id="etiqueta-unidad">Unidad de Negocio</span>
-            <div class="chips" id="unidades" role="radiogroup" aria-labelledby="etiqueta-unidad"></div>
-          </div>
-          <div class="campo" id="campo-sucursal" hidden>
-            <label for="sucursal">Sucursal</label>
-            <select id="sucursal"></select>
-            <p class="fijo" id="fijo-sucursal" hidden></p>
-          </div>
-          <div class="campo" id="campo-area" hidden>
-            <label for="area">Área</label>
-            <select id="area"></select>
-            <p class="fijo" id="fijo-area" hidden></p>
-          </div>
-          <div class="campo" id="campo-persona" hidden>
-            <label for="persona">Persona</label>
-            <select id="persona"></select>
-          </div>
-
-          <div class="separador"><span>o búscala por nombre</span></div>
-          <div class="buscador">
-            <label for="buscar" class="solo-lectores">Buscar por nombre</label>
-            <input id="buscar" type="search" placeholder="Escribe su nombre o apellido" autocomplete="off"
-                   aria-controls="resultados">
-            <ul id="resultados" class="resultados" aria-live="polite"></ul>
-          </div>
+    <!-- Asistente: ¿quién eres? → 9 valores → revisión. Cada paso se dibuja desde app.js -->
+    <section id="asistente" class="tarjeta" hidden>
+      <div class="progreso">
+        <div class="progreso__fila">
+          <p class="progreso__texto" id="progreso-texto"></p>
+          <button type="button" class="enlace enlace--tenue" id="reiniciar" hidden>Empezar de nuevo</button>
         </div>
-
-        <div id="elegida" class="elegida" hidden>
-          <div>
-            <p class="elegida__etiqueta">Nominas a</p>
-            <p class="elegida__nombre" id="elegida-nombre"></p>
-            <p class="elegida__ruta" id="elegida-ruta"></p>
-          </div>
-          <button type="button" class="enlace" id="cambiar">Cambiar</button>
-        </div>
-        <p class="error" id="error-persona"></p>
-      </fieldset>
-
-      <fieldset class="tarjeta paso">
-        <legend><span class="paso__num">4</span>Cuéntanos por qué</legend>
-        <label for="motivo">¿Qué hizo esta persona que refleje este valor?</label>
-        <textarea id="motivo" name="motivo" rows="5" maxlength="3000" aria-describedby="error-motivo" required></textarea>
-        <p class="contador"><span id="cuenta">0</span> / 3000</p>
-        <p class="error" id="error-motivo"></p>
-      </fieldset>
-
-      <div class="trampa" aria-hidden="true">
-        <label>Sitio web <input name="sitio_web" id="sitio_web" type="text" tabindex="-1" autocomplete="off"></label>
+        <ol class="progreso__barra" id="progreso-barra" aria-hidden="true"></ol>
       </div>
-
-      <p class="error error--general" id="error-envio" role="alert"></p>
-      <button class="boton" type="submit" id="enviar">Enviar nominación</button>
-      <p class="nota">Cada envío es una nominación: un valor y una persona. Al terminar podrás nominar en otro valor.</p>
-    </form>
+      <form id="paso" novalidate></form>
+    </section>
 
     <section id="gracias" class="tarjeta gracias" hidden tabindex="-1">
       <div class="gracias__icono" aria-hidden="true">✓</div>
-      <h2>¡Gracias por tu nominación!</h2>
-      <p id="resumen"></p>
-      <button type="button" class="boton" id="otra">Nominar en otro valor</button>
+      <h2>¡Gracias, <span id="gracias-nombre"></span>!</h2>
+      <p>Tus 9 nominaciones quedaron registradas. Cada una reconoce algo que hace que GEB sea extraordinario.</p>
+      <button type="button" class="boton boton--secundario" id="otra-persona">Otra persona va a nominar desde este dispositivo</button>
     </section>
   </main>
 
   <footer class="pie">Universidad GEB · Premios GRACCIEE 2026</footer>
+
+  <!-- Selector de persona: Unidad → Sucursal → Área → Persona, o búsqueda por nombre -->
+  <template id="tpl-selector">
+    <div class="selector">
+      <div class="sel-cascada">
+        <div class="campo">
+          <span class="etiqueta sel-etiqueta-unidad">Unidad de Negocio</span>
+          <div class="chips chips--unidades sel-unidades" role="radiogroup"></div>
+        </div>
+        <div class="campo sel-campo-sucursal" hidden>
+          <label class="sel-label-sucursal">Sucursal</label>
+          <select class="sel-sucursal"></select>
+          <p class="fijo sel-fijo-sucursal" hidden></p>
+        </div>
+        <div class="campo sel-campo-area" hidden>
+          <label class="sel-label-area">Área</label>
+          <select class="sel-area"></select>
+          <p class="fijo sel-fijo-area" hidden></p>
+        </div>
+        <div class="campo sel-campo-persona" hidden>
+          <label class="sel-label-persona">Persona</label>
+          <select class="sel-persona"></select>
+        </div>
+        <div class="separador"><span class="sel-separador">o búscala por nombre</span></div>
+        <div class="buscador">
+          <input class="sel-buscar" type="search" placeholder="Escribe su nombre o apellido" autocomplete="off"
+                 aria-label="Buscar por nombre">
+          <ul class="resultados sel-resultados" aria-live="polite"></ul>
+        </div>
+      </div>
+      <div class="elegida sel-elegida" hidden>
+        <div>
+          <p class="elegida__etiqueta sel-elegida-etiqueta"></p>
+          <p class="elegida__nombre sel-elegida-nombre"></p>
+          <p class="elegida__ruta sel-elegida-ruta"></p>
+        </div>
+        <button type="button" class="enlace sel-cambiar">Cambiar</button>
+      </div>
+    </div>
+  </template>
 
   <noscript><p class="aviso">Activa JavaScript en tu navegador para usar este formulario.</p></noscript>
   <script src="config.js"></script>

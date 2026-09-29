@@ -125,34 +125,81 @@ h1 span { color: #e2bd6b; }
   border-radius: var(--radio);
   box-shadow: var(--sombra);
 }
-fieldset.tarjeta { min-width: 0; }
-legend {
-  float: left;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  margin: 0 0 16px;
-  padding: 0;
+#paso h2 {
+  margin: 0 0 8px;
   font-family: var(--serif);
-  font-size: 21px;
+  font-size: 24px;
   font-weight: 600;
   line-height: 1.2;
+  outline: none;
 }
-legend + * { clear: both; }
-.paso__num {
-  display: inline-grid;
+.ayuda { margin: 0 0 18px; color: var(--tenue); }
+
+/* ── Avance ── */
+.progreso { margin: 0 0 22px; padding-bottom: 18px; border-bottom: 1px solid var(--linea); }
+.progreso__fila { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.progreso__texto { margin: 0 0 8px; font-size: 13px; font-weight: 600; letter-spacing: .04em; color: var(--oro-texto); }
+.progreso__barra { display: flex; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.progreso__barra li { flex: 1; height: 6px; border-radius: 3px; background: var(--linea); }
+.progreso__barra li.hecho { background: var(--oro); }
+.progreso__barra li.actual { box-shadow: 0 0 0 2px var(--oro); }
+.enlace.enlace--tenue { color: var(--tenue); font-weight: 500; font-size: 14px; }
+
+/* ── Encabezado de cada valor ── */
+.valor-cabecera { display: flex; align-items: center; gap: 14px; margin: 0 0 20px; }
+.valor-cabecera h2 { margin: 0 !important; font-size: 30px !important; }
+.valor-cabecera__num { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--tenue); }
+.valor-cabecera__letra {
+  display: grid;
   place-items: center;
   flex: none;
-  width: 30px;
-  height: 30px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: var(--oro-suave);
-  color: var(--oro-texto);
-  font-family: var(--sans);
-  font-size: 14px;
-  font-weight: 600;
+  background: var(--oro);
+  color: #fff;
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 700;
 }
+.etiqueta-motivo { margin-top: 22px; }
+
+/* ── Navegación entre pasos ── */
+.navegacion { display: flex; gap: 10px; margin-top: 20px; }
+.navegacion .boton { flex: 1; padding-left: 14px; padding-right: 14px; }
+.navegacion .boton--secundario { flex: 0 0 auto; width: auto; }
+
+/* ── Revisión ── */
+.revision { margin: 18px 0 8px; padding: 0; list-style: none; }
+.revision__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--linea);
+}
+.revision__item .chip__letra { flex: none; }
+.revision__texto { flex: 1; min-width: 0; }
+.revision__texto p { margin: 0; }
+.revision__valor { font-size: 13px; font-weight: 600; color: var(--oro-texto); }
+.revision__persona { font-weight: 600; }
+.revision__ruta { font-size: 13px; color: var(--tenue); }
+.revision__motivo {
+  margin-top: 4px !important;
+  font-size: 14px;
+  color: var(--tenue);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-line;
+}
+.elegida--compacta { margin: 14px 0 4px; }
+
+/* Al avanzar, el encabezado se hace compacto para dejar espacio al paso */
+body.en-curso .hero { padding: 20px 16px 76px; }
+body.en-curso .hero__sub, body.en-curso .letras, body.en-curso .hero__texto, body.en-curso .hero__eyebrow { display: none; }
+body.en-curso h1 { font-size: clamp(24px, 6vw, 32px); }
 
 /* ── Campos ── */
 label, .etiqueta {
@@ -217,9 +264,9 @@ input:focus, select:focus, textarea:focus {
   transition: border-color .15s, background-color .15s;
 }
 .chip--simple .chip__caja { padding-left: 16px; padding-right: 16px; }
-#unidades { display: grid; grid-template-columns: repeat(2, 1fr); }
-#unidades .chip__caja { width: 100%; justify-content: center; }
-@media (min-width: 480px) { #unidades { grid-template-columns: repeat(4, 1fr); } }
+.chips--unidades { display: grid; grid-template-columns: repeat(2, 1fr); }
+.chips--unidades .chip__caja { width: 100%; justify-content: center; }
+@media (min-width: 480px) { .chips--unidades { grid-template-columns: repeat(4, 1fr); } }
 .chip__letra {
   display: grid;
   place-items: center;
@@ -318,6 +365,7 @@ input:focus, select:focus, textarea:focus {
   cursor: pointer;
 }
 .nota { margin: 12px 0 0; text-align: center; font-size: 14px; color: var(--tenue); }
+.nota--izq { text-align: left; }
 
 /* ── Estados ── */
 .estado { text-align: center; padding: 36px 20px; }

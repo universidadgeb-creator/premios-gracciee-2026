@@ -1,70 +1,53 @@
 # Premios GRACCIEE 2026 · Formulario de nominaciones
 
-Formulario web para que los colaboradores de Grupo Empresarial Bienestar nominen a sus compañeros en los 9 valores GRACCIEE. La persona se **elige de una lista** (Unidad de Negocio → Sucursal → Área → Nombre, o buscándola por nombre) y cada nominación llega como una fila a Google Sheets.
+Formulario web para que cada colaborador de Grupo Empresarial Bienestar nomine a una persona **en cada uno de los 9 valores** GRACCIEE: Gratitud, Ritmo, Actitud, Ambición, Calidad, Creatividad, Integridad, Equipo y Empoderamiento.
 
-- **Página** (`index.html`, `estilos.css`, `app.js`, `config.js`): se publica gratis con GitHub Pages.
-- **Backend** (`apps-script/Codigo.gs`): un Apps Script dentro de la hoja de colaboradores. Entrega la lista a la página y guarda las nominaciones.
-- La lista de colaboradores **no se guarda en GitHub**: la página la pide a la hoja cada vez que se abre.
+**Cómo lo vive quien nomina**
+1. **¿Quién eres?** Se elige de la lista (por unidad y área/sucursal, o buscándose por nombre).
+2. **Un paso por valor**: a quién nomina (de la lista, nunca escrito a mano) y qué hizo para merecerlo. Nadie puede nominarse a sí mismo.
+3. **Revisión**: ve sus 9 nominaciones, puede cambiar cualquiera y las envía **una sola vez**.
 
-```
-index.html · estilos.css · app.js   ← el formulario
-config.js                           ← aquí va la URL del Apps Script
-apps-script/Codigo.gs               ← backend (se pega en la hoja)
-plantilla/                          ← plantilla de la pestaña "Colaboradores"
-alternativa-google-forms/           ← plan B: el mismo formulario hecho con Google Forms
-```
+Si se cierra la página a la mitad, al volver sigue donde se quedó (se guarda en ese teléfono).
+
+**Cómo está hecho**
+- **Página** (`index.html`, `estilos.css`, `app.js`, `config.js`): publicada con GitHub Pages.
+- **Backend** (`apps-script/Codigo.gs`): Apps Script dentro de una hoja de Google. Entrega la lista a la página, valida y guarda las nominaciones.
+- **La lista de colaboradores no está en GitHub.** Vive en la hoja y se llena desde el formulario de Empoderamientos con un clic.
 
 ## Puesta en marcha (una sola vez)
 
-Todo con la cuenta **@gebienestar.com.mx**. Para no mezclarla con tu cuenta personal, usa una ventana de incógnito donde solo esté esa cuenta.
+Todo con la cuenta **@gebienestar.com.mx** (de preferencia en una ventana de incógnito donde solo esté esa cuenta).
 
-### 1. La hoja de colaboradores
-- En Google Drive crea una hoja nueva → **Archivo › Importar › Subir** → `plantilla/Plantilla_Colaboradores_GRACCIEE.xlsx` → **Reemplazar hoja de cálculo**.
-- En la pestaña **Colaboradores** borra los ejemplos y pega tu lista: A Unidad de Negocio · B Sucursal · C Área · D Nombre.
-- Sin sucursal (GEB, Center) → déjala vacía y aparecerá como "Corporativo". Las filas sin Unidad, Área o Nombre se ignoran; los repetidos se quitan solos.
-
-### 2. El backend (Apps Script)
-- En la hoja: **Extensiones › Apps Script**. Borra lo que haya, pega todo `apps-script/Codigo.gs` y guarda (Ctrl + S).
-- En el desplegable de funciones elige **`configurar`** (no `onOpen`) → **▷ Ejecutar** → autoriza. Si aparece "Google no verificó esta app": *Configuración avanzada › Ir a… › Permitir*.
-- **Implementar › Nueva implementación** → engrane → **Aplicación web**:
-  - Ejecutar como: **Yo**
-  - Quién tiene acceso: **Cualquier usuario**
-- Copia la **URL de la aplicación web** (termina en `/exec`).
-
-### 3. Conectar la página
-- Abre `config.js` y pega la URL entre comillas:
-  ```js
-  API_URL: 'https://script.google.com/macros/s/XXXXXXXX/exec',
-  ```
-- Si `API_URL` está vacío, la página funciona en **modo de prueba**: se ve igual pero no guarda nada.
-
-### 4. Publicar en GitHub Pages
-- En el repositorio: **Settings › Pages › Build and deployment** → *Deploy from a branch* → rama `main`, carpeta `/ (root)` → Save.
-- En 1–2 minutos queda en `https://<usuario>.github.io/premios-gracciee-2026/`. Ese es el link que se comparte.
+1. **Hoja y script**: crea una hoja de cálculo nueva → **Extensiones › Apps Script** → borra lo que haya, pega todo `apps-script/Codigo.gs` y guarda (Ctrl + S).
+2. **Autorizar**: en el desplegable de funciones elige **`configurar`** (no `onOpen`) → **▷ Ejecutar** → autoriza. Si aparece "Google no verificó esta app": *Configuración avanzada › Ir a… › Permitir*.
+3. **Lista de colaboradores**: recarga la hoja → menú **GRACCIEE › Actualizar lista desde Empoderamientos** → pega el link del formulario de Empoderamientos. Se llena la pestaña **Colaboradores** (Vivo 47 por área, EasyFit por sucursal, GEB y Center directo).
+4. **Publicar el backend**: **Implementar › Nueva implementación** → engrane → **Aplicación web** → Ejecutar como: **Yo** · Quién tiene acceso: **Cualquier usuario** → copia la URL que termina en `/exec`.
+5. **Conectar la página**: pega esa URL en `config.js` (`API_URL: 'https://script.google.com/macros/s/…/exec'`) y súbelo a GitHub. Sin URL, la página funciona en **modo de prueba** con nombres inventados.
 
 ## Durante las nominaciones
-- Cada nominación se agrega a la pestaña **Nominaciones**: Fecha · Nominador · Valor · Unidad de Negocio · Sucursal · Área · Nominado · Motivo.
-- **Conteo** muestra las nominaciones por valor y persona (con unidad, sucursal y área), de más a menos. A la derecha está el total por valor.
-- Menú **GRACCIEE** de la hoja (aparece al recargarla):
-  - **Cerrar nominaciones / Abrir nominaciones**: la página muestra "Las nominaciones están cerradas" y deja de aceptar envíos.
-  - **Refrescar lista de colaboradores**: la página toma la lista al momento. Sin esto, los cambios aparecen solos en unos 5 minutos.
-- Entró alguien nuevo: agrégalo a la pestaña Colaboradores. No hay que tocar la página.
+- **Nominaciones**: una fila por nominación (9 por persona): Fecha · Nominador · Valor · Unidad · Sucursal · Área · Nominado · Motivo, más los datos de quien nominó y un ID de envío.
+- **Conteo**: nominaciones por valor y persona, de más a menos; a la derecha, total por valor.
+- **Participación**: toda la lista con "Sí" / "Pendiente" según si ya envió sus nominaciones (primero los pendientes) y un resumen "Ya nominaron: X de Y".
+- Menú **GRACCIEE**:
+  - **Actualizar lista desde Empoderamientos**: vuelve a leer la lista (por ejemplo, si RH agregó gente allá).
+  - **Refrescar formulario**: si editaste a mano la pestaña Colaboradores, para que la página lo tome al momento (si no, en ~5 minutos).
+  - **Cerrar / Abrir nominaciones**.
+- Si alguien envió por otra persona, borra sus 9 filas en **Nominaciones** (mismo "Envío") y ya podrá enviar.
 
 ## Si cambias el código
-- **Página** (`index.html`, `app.js`, …): súbelo a GitHub; Pages se actualiza sola.
-- **Apps Script**: pega el código nuevo y luego **Implementar › Administrar implementaciones › lápiz › Versión: Nueva versión › Implementar**. Así la URL no cambia.
+- **Página**: súbela a GitHub; Pages se actualiza sola.
+- **Apps Script**: pega el código nuevo y luego **Implementar › Administrar implementaciones › lápiz › Versión: Nueva versión › Implementar** (la URL no cambia).
 
 ## Si algo sale mal
-- **La página dice "No pudimos cargar el formulario"**: revisa que la URL de `config.js` termine en `/exec` y que la implementación tenga acceso **Cualquier usuario**.
-- **No aparece la opción "Cualquier usuario"**: tu organización no permite apps web públicas. Pide a quien administra Google Workspace que lo habilite, o usa el plan B de `alternativa-google-forms/`.
-- **"Cannot call SpreadsheetApp.getUi()…"**: ejecutaste `onOpen`. Elige `configurar`.
-- **"No item with the given ID…" o errores de permisos**: Apps Script está usando tu cuenta personal. Usa una ventana de incógnito solo con la cuenta @gebienestar.
+- **"No pudimos cargar el formulario"**: la URL de `config.js` debe terminar en `/exec` y la implementación tener acceso **Cualquier usuario**.
+- **No aparece "Cualquier usuario"**: tu organización no permite apps web públicas; pide a quien administra Google Workspace que lo habilite.
+- **"Cannot call SpreadsheetApp.getUi()…"**: ejecutaste `onOpen`; elige `configurar`.
+- **Errores de permisos o "No item with the given ID"**: Apps Script está usando tu cuenta personal; usa una ventana de incógnito solo con la cuenta @gebienestar.
 
 ## Opcional: subir el Apps Script con clasp
-- Una vez: activa **API de Google Apps Script** en https://script.google.com/home/usersettings (con la cuenta @gebienestar) e instala dependencias con `npm install`.
-- `npm run login` → elige la cuenta @gebienestar en el navegador.
-- `npm run vincular -- "LINK_DE_TU_HOJA"` → crea el Apps Script dentro de la hoja.
-- `npm run subir` → sube `apps-script/Codigo.gs`. Después sigue desde el paso 2 (ejecutar `configurar` e implementar).
+- Una vez: activa **API de Google Apps Script** en https://script.google.com/home/usersettings y ejecuta `npm install`.
+- `npm run login` → elige la cuenta @gebienestar · `npm run vincular -- "LINK_DE_LA_HOJA"` · `npm run subir`.
 
-## Probar en tu computadora
-Abre `index.html` con doble clic: con `API_URL` vacío verás el modo de prueba.
+## Otros archivos
+- `plantilla/`: plantilla para llenar Colaboradores a mano (Unidad · Sucursal · Área · Nombre; Sucursal y Área pueden ir vacías).
+- `alternativa-google-forms/`: primera versión con Google Forms (un valor por respuesta). Ya no es el flujo vigente.
