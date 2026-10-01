@@ -33,6 +33,7 @@ Todo con la cuenta **@gebienestar.com.mx** (de preferencia en una ventana de inc
   - **Refrescar formulario**: si editaste a mano la pestaña Colaboradores, para que la página lo tome al momento (si no, en ~5 minutos).
   - **Cerrar / Abrir nominaciones**.
 - Si alguien envió por otra persona, borra sus 9 filas en **Nominaciones** (mismo "Envío") y ya podrá enviar.
+- **Ajustes**: personas que faltan en Empoderamientos (por ejemplo Nuevos Negocios: Acton, Clínica, Onara, Seven) o que están en otra unidad. Columnas: Nombre · Unidad de Negocio · Sucursal · Área. Si el nombre ya existe se mueve; si no, se agrega. Se aplica cada vez que usas **GRACCIEE › Actualizar lista desde Empoderamientos**. No edites Colaboradores a mano: se reescribe en cada actualización.
 
 ## Si cambias el código
 - **Página**: súbela a GitHub; Pages se actualiza sola.

@@ -354,7 +354,9 @@
     function elegirUnidad(nombre) {
       limpiarDesde('unidad');
       sel.unidad = cat.unidades.find(u => u.nombre === nombre);
-      const sola = nivel('sucursal', sel.unidad.sucursales.map(s => s.nombre), 'Elige la sucursal…');
+      const esNegocio = /nuevos negocios/i.test(nombre); // ahí el segundo nivel es el negocio, no una sucursal
+      q('sel-label-sucursal').textContent = esNegocio ? 'Negocio' : 'Sucursal';
+      const sola = nivel('sucursal', sel.unidad.sucursales.map(s => s.nombre), esNegocio ? 'Elige el negocio…' : 'Elige la sucursal…');
       if (sola !== null) elegirSucursal(sola);
     }
     function elegirSucursal(nombre) {

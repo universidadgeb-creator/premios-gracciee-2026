@@ -285,8 +285,10 @@ input:focus, select:focus, textarea:focus {
 }
 .chip--simple .chip__caja { padding-left: 16px; padding-right: 16px; }
 .chips--unidades { display: grid; grid-template-columns: repeat(2, 1fr); }
-.chips--unidades .chip__caja { width: 100%; justify-content: center; }
-@media (min-width: 480px) { .chips--unidades { grid-template-columns: repeat(4, 1fr); } }
+.chips--unidades .chip__caja { width: 100%; justify-content: center; text-align: center; line-height: 1.2; }
+/* Con un número impar de unidades, la última ocupa todo el renglón en el celular */
+@media (max-width: 479px) { .chips--unidades .chip:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+@media (min-width: 480px) { .chips--unidades { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); } }
 .chip__letra {
   display: grid;
   place-items: center;

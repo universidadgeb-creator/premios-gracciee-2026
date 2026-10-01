@@ -30,6 +30,10 @@
 const CONFIG = {
   HOJA_COLABORADORES: 'Colaboradores',
 
+  // Personas que faltan en Empoderamientos o que están en otra unidad. Se aplica en cada
+  // actualización de la lista: si el nombre ya existe se mueve, si no, se agrega.
+  HOJA_AJUSTES: 'Ajustes',
+
   VALORES: ['Gratitud', 'Ritmo', 'Actitud', 'Ambición', 'Calidad', 'Creatividad',
             'Integridad', 'Equipo', 'Empoderamiento'],
 
@@ -146,6 +150,7 @@ function doGet(e) {
 function doPost(e) {
   try {
     const datos = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    if (datos.admin) return json_(administrar_(datos));
     if (datos.sitio_web) return json_({ ok: true }); // campo trampa: solo lo llenan los bots
     if (!estaAbierto_()) throw new Error('Las nominaciones ya están cerradas. ¡Gracias por participar!');
     const envio = validar_(datos);
@@ -179,7 +184,74 @@ function administrar_(p) {
   const clave = typeof ADMIN_CLAVE === 'string' ? ADMIN_CLAVE : '';
   if (!clave || p.admin !== clave) throw new Error('No autorizado.');
   if (p.accion === 'actualizar') return { ok: true, resumen: importarColaboradores_(fuente_()) };
+  if (p.accion === 'ajustes') {
+    escribirAjustes_(p.filas);
+    return { ok: true, resumen: importarColaboradores_(fuente_()) };
+  }
   throw new Error('Acción desconocida.');
+}
+
+/** Reemplaza las filas de la pestaña Ajustes por [[Nombre, Unidad, Sucursal, Área], ...]. */
+function escribirAjustes_(filas) {
+  if (!Array.isArray(filas) || filas.some(f => !Array.isArray(f) || f.length !== 4)) {
+    throw new Error('Los ajustes deben ser filas de 4 columnas: Nombre, Unidad, Sucursal, Área.');
+  }
+  const hoja = hojaAjustes_(SpreadsheetApp.getActiveSpreadsheet());
+  if (hoja.getLastRow() > 1) hoja.getRange(2, 1, hoja.getLastRow() - 1, 4).clearContent();
+  if (filas.length) hoja.getRange(2, 1, filas.length, 4).setValues(filas.map(f => f.map(v => comoTexto_(limpiar_(v)))));
+}
+
+function hojaAjustes_(ss) {
+  let hoja = ss.getSheetByName(CONFIG.HOJA_AJUSTES);
+  if (!hoja) {
+    hoja = ss.insertSheet(CONFIG.HOJA_AJUSTES);
+    hoja.getRange(1, 1, 1, 4).setValues([['Nombre', 'Unidad de Negocio', 'Sucursal', 'Área']])
+      .setFontWeight('bold').setBackground('#f1f3f4');
+    hoja.setFrozenRows(1);
+    hoja.getRange('F1').setValue('Aquí van las personas que faltan en Empoderamientos o que están en otra unidad. ' +
+      'Si el nombre ya existe en la lista, se mueve; si no, se agrega. Después usa GRACCIEE › Actualizar lista.');
+    hoja.setColumnWidth(1, 280);
+  }
+  return hoja;
+}
+
+/** Aplica la pestaña Ajustes sobre la lista de Empoderamientos. */
+function aplicarAjustes_(filas, ss) {
+  const hoja = hojaAjustes_(ss);
+  const ajustes = hoja.getLastRow() > 1 ? hoja.getRange(2, 1, hoja.getLastRow() - 1, 4).getDisplayValues() : [];
+  const menores = ['de', 'del', 'la', 'las', 'los', 'y'];
+  const palabras = t => clave_(t).split(' ').filter(w => w && menores.indexOf(w) < 0);
+  const r = { movidos: 0, agregados: 0, dudosos: [] };
+  ajustes.forEach(a => {
+    const [nombre, unidad, sucursal, area] = a.map(limpiar_);
+    if (!nombre || !unidad) return;
+    // Mismo nombre, o todas las palabras escritas dentro del nombre completo ("Tatiana Loza")
+    let hits = filas.filter(f => clave_(f[3]) === clave_(nombre));
+    if (!hits.length && palabras(nombre).length >= 2) {
+      hits = filas.filter(f => palabras(nombre).every(w => palabras(f[3]).indexOf(w) >= 0));
+    }
+    if (new Set(hits.map(f => clave_(f[3]))).size > 1) {
+      r.dudosos.push(nombre); // coincide con personas distintas: no se toca
+      return;
+    }
+    if (hits.length) {
+      hits.forEach(f => { f[0] = unidad; f[1] = sucursal; f[2] = area; });
+      r.movidos++;
+    } else {
+      filas.push([unidad, sucursal, area, formatoNombre_(nombre)]);
+      r.agregados++;
+    }
+  });
+  // Sin repetidos (una persona movida desde dos listas queda una sola vez)
+  const vistos = new Set();
+  r.filas = filas.filter(f => {
+    const k = f.map(clave_).join('|');
+    if (vistos.has(k)) return false;
+    vistos.add(k);
+    return true;
+  }).sort((a, b) => ordenAlfabetico_(a[0], b[0]) || ordenAlfabetico_(a[1], b[1]) ||
+    ordenAlfabetico_(a[2], b[2]) || ordenAlfabetico_(a[3], b[3]));
+  return r;
 }
 
 function itemsDeFormulario_(url) {
@@ -320,7 +392,8 @@ function actualizarListaDesdeEmpoderamientos() {
 
 /** Reescribe la pestaña Colaboradores con la lista del formulario. Devuelve un resumen. */
 function importarColaboradores_(url) {
-  const filas = colaboradoresDeFormulario_(url);
+  const ajustes = aplicarAjustes_(colaboradoresDeFormulario_(url), SpreadsheetApp.getActiveSpreadsheet());
+  const filas = ajustes.filas;
   PropertiesService.getScriptProperties().setProperty(PROP.FUENTE, url);
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -341,7 +414,9 @@ function importarColaboradores_(url) {
   });
   return 'Lista actualizada: ' + filas.length + ' colaboradores (' +
     Object.keys(porUnidad).map(u => u + ' ' + porUnidad[u]).join(' · ') + ').\nPor sucursal: ' +
-    Object.keys(porSucursal).map(s => s + ' ' + porSucursal[s]).join(' · ') + '.';
+    Object.keys(porSucursal).map(s => s + ' ' + porSucursal[s]).join(' · ') + '.\nAjustes: ' +
+    ajustes.movidos + ' movidos, ' + ajustes.agregados + ' agregados' +
+    (ajustes.dudosos.length ? '. Revisa (coinciden con varias personas): ' + ajustes.dudosos.join(', ') : '') + '.';
 }
 
 /**
