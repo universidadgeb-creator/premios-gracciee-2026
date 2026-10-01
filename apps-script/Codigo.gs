@@ -184,21 +184,22 @@ function administrar_(p) {
   const clave = typeof ADMIN_CLAVE === 'string' ? ADMIN_CLAVE : '';
   if (!clave || p.admin !== clave) throw new Error('No autorizado.');
   if (p.accion === 'actualizar') return { ok: true, resumen: importarColaboradores_(fuente_()) };
-  if (p.accion === 'ajustes') {
-    escribirAjustes_(p.filas);
+  if (p.accion === 'ajustes' || p.accion === 'agregar-ajustes') {
+    escribirAjustes_(p.filas, p.accion === 'agregar-ajustes');
     return { ok: true, resumen: importarColaboradores_(fuente_()) };
   }
   throw new Error('Acción desconocida.');
 }
 
-/** Reemplaza las filas de la pestaña Ajustes por [[Nombre, Unidad, Sucursal, Área], ...]. */
-function escribirAjustes_(filas) {
+/** Escribe en la pestaña Ajustes [[Nombre, Unidad, Sucursal, Área], ...]: reemplaza todo o agrega al final. */
+function escribirAjustes_(filas, agregar) {
   if (!Array.isArray(filas) || filas.some(f => !Array.isArray(f) || f.length !== 4)) {
     throw new Error('Los ajustes deben ser filas de 4 columnas: Nombre, Unidad, Sucursal, Área.');
   }
   const hoja = hojaAjustes_(SpreadsheetApp.getActiveSpreadsheet());
-  if (hoja.getLastRow() > 1) hoja.getRange(2, 1, hoja.getLastRow() - 1, 4).clearContent();
-  if (filas.length) hoja.getRange(2, 1, filas.length, 4).setValues(filas.map(f => f.map(v => comoTexto_(limpiar_(v)))));
+  if (!agregar && hoja.getLastRow() > 1) hoja.getRange(2, 1, hoja.getLastRow() - 1, 4).clearContent();
+  const inicio = agregar ? Math.max(hoja.getLastRow(), 1) + 1 : 2;
+  if (filas.length) hoja.getRange(inicio, 1, filas.length, 4).setValues(filas.map(f => f.map(v => comoTexto_(limpiar_(v)))));
 }
 
 function hojaAjustes_(ss) {
@@ -222,9 +223,17 @@ function aplicarAjustes_(filas, ss) {
   const menores = ['de', 'del', 'la', 'las', 'los', 'y'];
   const palabras = t => clave_(t).split(' ').filter(w => w && menores.indexOf(w) < 0);
   const r = { movidos: 0, agregados: 0, dudosos: [] };
+  const colocados = new Set(); // nombres ya acomodados por una fila anterior de Ajustes
   ajustes.forEach(a => {
     const [nombre, unidad, sucursal, area] = a.map(limpiar_);
     if (!nombre || !unidad) return;
+    // Si la persona ya se acomodó en otra fila, esta fila la pone TAMBIÉN aquí (está en dos lugares)
+    if (colocados.has(clave_(nombre))) {
+      const original = filas.filter(f => clave_(f[3]) === clave_(nombre))[0];
+      filas.push([unidad, sucursal, area, original ? original[3] : formatoNombre_(nombre)]);
+      r.agregados++;
+      return;
+    }
     // Mismo nombre, o todas las palabras escritas dentro del nombre completo ("Ana Pérez" → "Ana Laura Pérez Ríos")
     let hits = filas.filter(f => clave_(f[3]) === clave_(nombre));
     if (!hits.length && palabras(nombre).length >= 2) {
@@ -236,9 +245,11 @@ function aplicarAjustes_(filas, ss) {
     }
     if (hits.length) {
       hits.forEach(f => { f[0] = unidad; f[1] = sucursal; f[2] = area; });
+      colocados.add(clave_(hits[0][3]));
       r.movidos++;
     } else {
       filas.push([unidad, sucursal, area, formatoNombre_(nombre)]);
+      colocados.add(clave_(nombre));
       r.agregados++;
     }
   });
@@ -304,8 +315,9 @@ function buscarPersona_(unidades, d, campoNombre) {
   return p ? { nombre: p, unidad: u.nombre, sucursal: s.nombre, area: a.nombre } : null;
 }
 
+/** Misma persona = mismo nombre en la misma unidad (alguien puede estar en dos sucursales o negocios). */
 function mismaPersona_(a, b) {
-  return ['nombre', 'unidad', 'sucursal', 'area'].every(k => clave_(a[k]) === clave_(b[k]));
+  return ['nombre', 'unidad'].every(k => clave_(a[k]) === clave_(b[k]));
 }
 
 function revisarEnvioPrevio_(hoja, n) {
@@ -618,13 +630,14 @@ function prepararHojas_(ss) {
     nom.getRange('A:A').setNumberFormat('dd/MM/yyyy HH:mm');
     nom.setColumnWidth(8, 420);
   }
-  if (!ss.getSheetByName(HOJAS.CONTEO)) {
-    const conteo = ss.insertSheet(HOJAS.CONTEO);
-    // Por valor y nominado; dentro de cada valor, de más a menos nominaciones
+  const conteo = ss.getSheetByName(HOJAS.CONTEO) || ss.insertSheet(HOJAS.CONTEO);
+  if (conteo.getRange('A1').getFormula().indexOf('max(E)') < 0) {
+    // Por valor y nominado (misma persona = mismo nombre en la misma unidad, aunque esté en dos
+    // sucursales o negocios); dentro de cada valor, de más a menos nominaciones
     conteo.getRange('A1').setFormula(
-      '=IFERROR(QUERY(' + HOJAS.NOMINACIONES + '!A:H, "select C, G, D, E, F, count(A) ' +
-      'where G <> \'\' group by C, G, D, E, F order by C, count(A) desc ' +
-      'label count(A) \'Nominaciones\'", 1), "Aún no hay nominaciones")');
+      '=IFERROR(QUERY(' + HOJAS.NOMINACIONES + '!A:H, "select C, G, D, max(E), max(F), count(A) ' +
+      'where G <> \'\' group by C, G, D order by C, count(A) desc ' +
+      'label max(E) \'Sucursal\', max(F) \'Área\', count(A) \'Nominaciones\'", 1), "Aún no hay nominaciones")');
     // Total por valor
     conteo.getRange('H1').setFormula(
       '=IFERROR(QUERY(' + HOJAS.NOMINACIONES + '!A:H, "select C, count(A) where G <> \'\' ' +
@@ -641,9 +654,14 @@ function prepararHojas_(ss) {
       'IF(COUNTIF(' + HOJAS.NOMINACIONES + '!B:B, TRIM(' + c + 'D2:D)) > 0, "Sí", "Pendiente")}, ' +
       'TRIM(' + c + 'D2:D) <> ""), 5, TRUE, 1, TRUE, 2, TRUE, 3, TRUE, 4, TRUE), {"", "", "", "", ""})})');
     part.getRange('G1').setValue('Resumen');
-    part.getRange('G2').setFormula('="Ya nominaron: " & COUNTIF(E2:E, "Sí") & " de " & COUNTA(D2:D)');
     part.getRange('G1').setFontWeight('bold');
     part.setFrozenRows(1);
+  }
+  // Resumen por personas (no por renglones: alguien puede estar en dos sucursales o negocios)
+  const part = ss.getSheetByName(HOJAS.PARTICIPACION);
+  if (part.getRange('G2').getFormula().indexOf('COUNTUNIQUE') < 0) {
+    part.getRange('G2').setFormula('="Ya nominaron: " & IFERROR(COUNTUNIQUE(FILTER(D2:D, E2:E = "Sí")), 0) & ' +
+      '" de " & COUNTUNIQUE(D2:D) & " personas"');
   }
   return nom;
 }
