@@ -225,7 +225,7 @@ function aplicarAjustes_(filas, ss) {
   ajustes.forEach(a => {
     const [nombre, unidad, sucursal, area] = a.map(limpiar_);
     if (!nombre || !unidad) return;
-    // Mismo nombre, o todas las palabras escritas dentro del nombre completo ("Tatiana Loza")
+    // Mismo nombre, o todas las palabras escritas dentro del nombre completo ("Ana Pérez" → "Ana Laura Pérez Ríos")
     let hits = filas.filter(f => clave_(f[3]) === clave_(nombre));
     if (!hits.length && palabras(nombre).length >= 2) {
       hits = filas.filter(f => palabras(nombre).every(w => palabras(f[3]).indexOf(w) >= 0));
