@@ -28,6 +28,19 @@
     ],
   };
 
+  // Descripción de cada valor (presentación de inducción de GEB)
+  const DESCRIPCIONES = {
+    'Gratitud': 'Hemos recibido todo de Dios, nuestras familias, amigos, profesores, entrenadores, comunidad, país, mundo… hipoteca social.',
+    'Ritmo': 'Trabajando para que las cosas se den en tiempo y forma.',
+    'Actitud': 'Tenemos una mentalidad de aprendizaje y crecimiento, aprovechamos cada oportunidad para desarrollar nuestras capacidades.',
+    'Ambición': 'Tenemos hambre y compromiso de ser parte de algo grande, de tener movilidad social, de trascender, de hacer este mundo uno mejor.',
+    'Creatividad': 'Está en nosotros escuchar al cliente/mercado y diseñar ofertas frescas, nuevas, valiosas y escasas.',
+    'Calidad': 'Trabajamos solo con criterios y estándares de excelencia.',
+    'Integridad': 'Buscamos hacer lo correcto siempre.',
+    'Equipo': 'Construimos redes de capacidades superiores para pensar y actuar juntos de manera efectiva, estratégica y competitiva.',
+    'Empoderamiento': 'Sabemos que somos nosotros los responsables de hacer de GEB una Organización de Negocio competitiva.',
+  };
+
   let catalogo = null;
   let valores = [];
   // paso: 0 = ¿quién eres?, 1..9 = un valor cada uno, 10 = revisión
@@ -171,6 +184,7 @@
         h('div', {},
           h('p', { class: 'valor-cabecera__num' }, 'Valor ' + k + ' de ' + valores.length),
           h('h2', { tabindex: '-1' }, valor))),
+      DESCRIPCIONES[valor] ? h('p', { class: 'valor-descripcion' }, DESCRIPCIONES[valor]) : null,
       h('p', { class: 'etiqueta' }, '¿A quién nominas en ', h('strong', {}, valor), '?'),
       selector.elemento,
       h('label', { for: idMotivo, class: 'etiqueta-motivo' }, '¿Qué hizo esta persona que refleje ', h('strong', {}, valor), '?'),
