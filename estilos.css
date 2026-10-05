@@ -5,24 +5,24 @@
 :root {
   --fondo: #f8f3e9;            /* crema del cartel */
   --tarjeta: #fffdf9;
-  --texto: #2e1418;
-  --tenue: #75585a;
+  --texto: #2f1d14;
+  --tenue: #75604f;
   --linea: #eadfd0;
-  --acento: #6d0e1b;           /* tinto: detalles, botones, papel picado */
-  --acento-texto: #6d0e1b;
-  --acento-suave: #f5e6e4;
+  --acento: #8f4418;           /* cobre: color principal (botones, letras, avance, selección) */
+  --acento-texto: #6d0e1b;     /* tinto: solo detalles (etiquetas pequeñas, enlaces, papel picado) */
+  --acento-suave: #f4e6d6;
   --cobre: #8f4418;            /* cobre del logo GRACCIEE */
-  --cobre-suave: #f6ebde;
-  --boton: #6d0e1b;
+  --cobre-suave: #fbf5ec;
+  --boton: #8f4418;
   --boton-texto: #fff8ef;
   --peligro: #b3261e;
   --exito: #2f6b3a;
-  --anillo: 0 0 0 3px rgba(109, 14, 27, .25);
+  --anillo: 0 0 0 3px rgba(143, 68, 24, .28);
   --radio: 16px;
-  --sombra: 0 1px 2px rgba(109, 14, 27, .06), 0 10px 28px rgba(109, 14, 27, .08);
+  --sombra: 0 1px 2px rgba(92, 45, 16, .06), 0 10px 28px rgba(92, 45, 16, .08);
   --hero-fondo: #f8f3e9;
-  --hero-titulo: #6d0e1b;
-  --hero-texto: #6b3a3f;
+  --hero-titulo: #4b2311;
+  --hero-texto: #6e4a37;
   --papel-picado: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27120%27 height=%2742%27 viewBox=%270 0 120 42%27%3E%3Cpath d=%27M0 4.5H120%27 stroke=%27%236d0e1b%27 stroke-opacity=%27.6%27 stroke-width=%271%27/%3E%3Cpath fill-rule=%27evenodd%27 fill=%27%236d0e1b%27 d=%27M5 5H55V33L50 38L45 33L40 38L35 33L30 38L25 33L20 38L15 33L10 38L5 33Z M30 12L35 18L30 24L25 18Z M13 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z M41 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z M28 28h4v3h-4Z%27/%3E%3Cpath fill-rule=%27evenodd%27 fill=%27%236d0e1b%27 fill-opacity=%27.82%27 d=%27M65 5H115V33L110 38L105 33L100 38L95 33L90 38L85 33L80 38L75 33L70 38L65 33Z M90 12L95 18L90 24L85 18Z M73 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z M101 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z M88 28h4v3h-4Z%27/%3E%3C/svg%3E") repeat-x center top;
   --serif: "Fraunces", Georgia, "Times New Roman", serif;
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -36,18 +36,18 @@
     --texto: #f5ebe2;
     --tenue: #c3aea7;
     --linea: #3b252a;
-    --acento: #c2505f;
+    --acento: #d08a52;
     --acento-texto: #e8919c;
-    --acento-suave: #3a1a1f;
+    --acento-suave: #33231a;
     --cobre: #d78f55;
-    --cobre-suave: #33221a;
-    --boton: #c2505f;
-    --boton-texto: #1a0a0c;
+    --cobre-suave: #2a1c15;
+    --boton: #d08a52;
+    --boton-texto: #1a0e08;
     --peligro: #ff8a80;
     --exito: #8fd19e;
     --sombra: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 28px rgba(0, 0, 0, .25);
     --hero-fondo: #1d0d10;
-    --hero-titulo: #f8eee4;
+    --hero-titulo: #f5e6d6;
     --hero-texto: #d8c3bb;
     --papel-picado: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27120%27 height=%2742%27 viewBox=%270 0 120 42%27%3E%3Cpath d=%27M0 4.5H120%27 stroke=%27%23a8323f%27 stroke-opacity=%27.6%27 stroke-width=%271%27/%3E%3Cpath fill-rule=%27evenodd%27 fill=%27%23a8323f%27 d=%27M5 5H55V33L50 38L45 33L40 38L35 33L30 38L25 33L20 38L15 33L10 38L5 33Z M30 12L35 18L30 24L25 18Z M13 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z M41 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z M28 28h4v3h-4Z%27/%3E%3Cpath fill-rule=%27evenodd%27 fill=%27%23a8323f%27 fill-opacity=%27.82%27 d=%27M65 5H115V33L110 38L105 33L100 38L95 33L90 38L85 33L80 38L75 33L70 38L65 33Z M90 12L95 18L90 24L85 18Z M73 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z M101 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0Z M88 28h4v3h-4Z%27/%3E%3C/svg%3E") repeat-x center top;
     color-scheme: dark;
@@ -111,6 +111,14 @@ h1 span { color: var(--cobre); }
   font-family: var(--serif);
   font-size: 21px;
   color: var(--hero-titulo);
+}
+.hero__sub::after {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 2px;
+  margin: 10px auto 0;
+  background: var(--acento-texto);
 }
 .letras {
   display: flex;
