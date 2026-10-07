@@ -184,6 +184,23 @@ function administrar_(p) {
   const clave = typeof ADMIN_CLAVE === 'string' ? ADMIN_CLAVE : '';
   if (!clave || p.admin !== clave) throw new Error('No autorizado.');
   if (p.accion === 'actualizar') return { ok: true, resumen: importarColaboradores_(fuente_()) };
+  if (p.accion === 'menciones') { // cuántas veces aparece un nombre en Nominaciones (solo conteos)
+    const hoja = prepararHojas_(SpreadsheetApp.getActiveSpreadsheet());
+    const filas = hoja.getLastRow() > 1 ? hoja.getRange(2, 1, hoja.getLastRow() - 1, COLUMNAS.length).getValues() : [];
+    const k = clave_(p.nombre);
+    return { ok: true, nominaciones: filas.length, envios: new Set(filas.map(f => f[11])).size,
+             comoNominado: filas.filter(f => clave_(f[6]) === k).length, comoNominador: filas.filter(f => clave_(f[1]) === k).length };
+  }
+  if (p.accion === 'renombrar') { // corrige un nombre ya guardado en Nominaciones (nominado y nominador)
+    const hoja = prepararHojas_(SpreadsheetApp.getActiveSpreadsheet());
+    if (hoja.getLastRow() < 2) return { ok: true, cambiados: 0 };
+    const rango = hoja.getRange(2, 1, hoja.getLastRow() - 1, COLUMNAS.length);
+    const filas = rango.getValues();
+    let cambiados = 0;
+    filas.forEach(f => [1, 6].forEach(c => { if (clave_(f[c]) === clave_(p.de)) { f[c] = limpiar_(p.a); cambiados++; } }));
+    if (cambiados) rango.setValues(filas.map(f => f.map(comoTexto_)));
+    return { ok: true, cambiados: cambiados };
+  }
   if (p.accion === 'ajustes' || p.accion === 'agregar-ajustes') {
     escribirAjustes_(p.filas, p.accion === 'agregar-ajustes');
     return { ok: true, resumen: importarColaboradores_(fuente_()) };
@@ -209,10 +226,13 @@ function hojaAjustes_(ss) {
     hoja.getRange(1, 1, 1, 4).setValues([['Nombre', 'Unidad de Negocio', 'Sucursal', 'Área']])
       .setFontWeight('bold').setBackground('#f1f3f4');
     hoja.setFrozenRows(1);
-    hoja.getRange('F1').setValue('Aquí van las personas que faltan en Empoderamientos o que están en otra unidad. ' +
-      'Si el nombre ya existe en la lista, se mueve; si no, se agrega. Después usa GRACCIEE › Actualizar lista.');
     hoja.setColumnWidth(1, 280);
   }
+  const nota = 'Aquí van las personas que faltan en Empoderamientos o que están en otra unidad. ' +
+    'Si el nombre ya existe en la lista, se mueve; si no, se agrega. Si escribes a la misma persona dos veces, ' +
+    'aparece en los dos lugares. Para sacar a alguien de la lista, escribe QUITAR en Unidad de Negocio. ' +
+    'Después usa GRACCIEE › Actualizar lista.';
+  if (hoja.getRange('F1').getValue() !== nota) hoja.getRange('F1').setValue(nota);
   return hoja;
 }
 
@@ -243,6 +263,11 @@ function aplicarAjustes_(filas, ss) {
       r.dudosos.push(nombre); // coincide con personas distintas: no se toca
       return;
     }
+    if (clave_(unidad) === 'quitar') { // "QUITAR" en la columna Unidad: se elimina de la lista
+      hits.forEach(f => { f.quitar = true; });
+      r.quitados = (r.quitados || 0) + (hits.length ? 1 : 0);
+      return;
+    }
     if (hits.length) {
       hits.forEach(f => { f[0] = unidad; f[1] = sucursal; f[2] = area; });
       colocados.add(clave_(hits[0][3]));
@@ -256,6 +281,7 @@ function aplicarAjustes_(filas, ss) {
   // Sin repetidos (una persona movida desde dos listas queda una sola vez)
   const vistos = new Set();
   r.filas = filas.filter(f => {
+    if (f.quitar) return false;
     const k = f.map(clave_).join('|');
     if (vistos.has(k)) return false;
     vistos.add(k);
@@ -315,9 +341,9 @@ function buscarPersona_(unidades, d, campoNombre) {
   return p ? { nombre: p, unidad: u.nombre, sucursal: s.nombre, area: a.nombre } : null;
 }
 
-/** Misma persona = mismo nombre en la misma unidad (alguien puede estar en dos sucursales o negocios). */
+/** Misma persona = mismo nombre completo (alguien puede estar en dos unidades, sucursales o negocios). */
 function mismaPersona_(a, b) {
-  return ['nombre', 'unidad'].every(k => clave_(a[k]) === clave_(b[k]));
+  return clave_(a.nombre) === clave_(b.nombre);
 }
 
 function revisarEnvioPrevio_(hoja, n) {
@@ -427,7 +453,7 @@ function importarColaboradores_(url) {
   return 'Lista actualizada: ' + filas.length + ' colaboradores (' +
     Object.keys(porUnidad).map(u => u + ' ' + porUnidad[u]).join(' · ') + ').\nPor sucursal: ' +
     Object.keys(porSucursal).map(s => s + ' ' + porSucursal[s]).join(' · ') + '.\nAjustes: ' +
-    ajustes.movidos + ' movidos, ' + ajustes.agregados + ' agregados' +
+    ajustes.movidos + ' movidos, ' + ajustes.agregados + ' agregados, ' + (ajustes.quitados || 0) + ' quitados' +
     (ajustes.dudosos.length ? '. Revisa (coinciden con varias personas): ' + ajustes.dudosos.join(', ') : '') + '.';
 }
 
@@ -631,13 +657,14 @@ function prepararHojas_(ss) {
     nom.setColumnWidth(8, 420);
   }
   const conteo = ss.getSheetByName(HOJAS.CONTEO) || ss.insertSheet(HOJAS.CONTEO);
-  if (conteo.getRange('A1').getFormula().indexOf('max(E)') < 0) {
-    // Por valor y nominado (misma persona = mismo nombre en la misma unidad, aunque esté en dos
-    // sucursales o negocios); dentro de cada valor, de más a menos nominaciones
+  if (conteo.getRange('A1').getFormula().indexOf('max(D)') < 0) {
+    // Por valor y nominado (misma persona = mismo nombre, aunque esté en dos unidades, sucursales
+    // o negocios); dentro de cada valor, de más a menos nominaciones
     conteo.getRange('A1').setFormula(
-      '=IFERROR(QUERY(' + HOJAS.NOMINACIONES + '!A:H, "select C, G, D, max(E), max(F), count(A) ' +
-      'where G <> \'\' group by C, G, D order by C, count(A) desc ' +
-      'label max(E) \'Sucursal\', max(F) \'Área\', count(A) \'Nominaciones\'", 1), "Aún no hay nominaciones")');
+      '=IFERROR(QUERY(' + HOJAS.NOMINACIONES + '!A:H, "select C, G, max(D), max(E), max(F), count(A) ' +
+      'where G <> \'\' group by C, G order by C, count(A) desc ' +
+      'label max(D) \'Unidad de Negocio\', max(E) \'Sucursal\', max(F) \'Área\', count(A) \'Nominaciones\'", 1), ' +
+      '"Aún no hay nominaciones")');
     // Total por valor
     conteo.getRange('H1').setFormula(
       '=IFERROR(QUERY(' + HOJAS.NOMINACIONES + '!A:H, "select C, count(A) where G <> \'\' ' +

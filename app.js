@@ -491,8 +491,8 @@
   // ───────────── Datos ─────────────
   const clave = t => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
   const ruta = p => [p.unidad, p.sucursal, p.area].filter(Boolean).join(' · ');
-  // Misma persona = mismo nombre en la misma unidad (alguien puede estar en dos sucursales o negocios)
-  const mismaPersona = (a, b) => Boolean(a && b) && ['nombre', 'unidad'].every(k => clave(a[k]) === clave(b[k]));
+  // Misma persona = mismo nombre completo (alguien puede estar en dos unidades, sucursales o negocios)
+  const mismaPersona = (a, b) => Boolean(a && b) && clave(a.nombre) === clave(b.nombre);
 
   /** Copia de la lista sin la persona indicada (para que nadie se nomine a sí mismo). */
   function sinPersona(cat, p) {
