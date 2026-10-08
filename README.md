@@ -1,11 +1,11 @@
 # Premios GRACCIEE 2026 · Formulario de nominaciones
 
-Formulario web para que cada colaborador de Grupo Empresarial Bienestar nomine a una persona **en cada uno de los 9 valores** GRACCIEE: Gratitud, Ritmo, Actitud, Ambición, Calidad, Creatividad, Integridad, Equipo y Empoderamiento.
+Formulario web para que cada colaborador de Grupo Empresarial Bienestar nomine a una persona **en cada uno de los valores** GRACCIEE que se votan: Gratitud, Ritmo, Actitud, Ambición, Calidad, Creatividad, Integridad y Equipo (Empoderamiento se quitó de la votación el 8 de octubre de 2026; la lista está en `CONFIG.VALORES` del Apps Script).
 
 **Cómo lo vive quien nomina**
 1. **¿Quién eres?** Se elige de la lista (por unidad y área/sucursal, o buscándose por nombre).
 2. **Un paso por valor**: a quién nomina (de la lista, nunca escrito a mano) y qué hizo para merecerlo. Nadie puede nominarse a sí mismo.
-3. **Revisión**: ve sus 9 nominaciones, puede cambiar cualquiera y las envía **una sola vez**.
+3. **Revisión**: ve sus nominaciones, puede cambiar cualquiera y las envía **una sola vez**.
 
 Si se cierra la página a la mitad, al volver sigue donde se quedó (se guarda en ese teléfono).
 
@@ -25,14 +25,14 @@ Todo con la cuenta **@gebienestar.com.mx** (de preferencia en una ventana de inc
 5. **Conectar la página**: pega esa URL en `config.js` (`API_URL: 'https://script.google.com/macros/s/…/exec'`) y súbelo a GitHub. Sin URL, la página funciona en **modo de prueba** con nombres inventados.
 
 ## Durante las nominaciones
-- **Nominaciones**: una fila por nominación (9 por persona): Fecha · Nominador · Valor · Unidad · Sucursal · Área · Nominado · Motivo, más los datos de quien nominó y un ID de envío.
+- **Nominaciones**: una fila por nominación (una por valor): Fecha · Nominador · Valor · Unidad · Sucursal · Área · Nominado · Motivo, más los datos de quien nominó y un ID de envío.
 - **Conteo**: nominaciones por valor y persona, de más a menos; a la derecha, total por valor.
 - **Participación**: toda la lista con "Sí" / "Pendiente" según si ya envió sus nominaciones (primero los pendientes) y un resumen "Ya nominaron: X de Y".
 - Menú **GRACCIEE**:
   - **Actualizar lista desde Empoderamientos**: vuelve a leer la lista (por ejemplo, si RH agregó gente allá).
   - **Refrescar formulario**: si editaste a mano la pestaña Colaboradores, para que la página lo tome al momento (si no, en ~5 minutos).
   - **Cerrar / Abrir nominaciones**.
-- Si alguien envió por otra persona, borra sus 9 filas en **Nominaciones** (mismo "Envío") y ya podrá enviar.
+- Si alguien envió por otra persona, borra sus filas en **Nominaciones** (mismo "Envío") y ya podrá enviar.
 - **Ajustes**: personas que faltan en Empoderamientos (por ejemplo Nuevos Negocios: Acton, Clínica, Onara, Seven) o que están en otra unidad. Columnas: Nombre · Unidad de Negocio · Sucursal · Área. Si el nombre ya existe se mueve; si no, se agrega. Se aplica cada vez que usas **GRACCIEE › Actualizar lista desde Empoderamientos**. No edites Colaboradores a mano: se reescribe en cada actualización.
 
 ## Si cambias el código

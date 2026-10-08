@@ -5,9 +5,9 @@
  * ═══════════════════════════════════════════════════════════════════════
  *
  *  Qué hace
- *   - GET  → entrega al formulario los 9 valores y la lista de colaboradores
+ *   - GET  → entrega al formulario los valores (CONFIG.VALORES) y la lista de colaboradores
  *            (pestaña "Colaboradores": Unidad de Negocio | Sucursal | Área | Nombre).
- *   - POST → recibe las 9 nominaciones de una persona (una por valor) y las guarda
+ *   - POST → recibe las nominaciones de una persona (una por valor) y las guarda
  *            en la pestaña "Nominaciones". Cada persona puede enviar una sola vez.
  *   - Menú GRACCIEE → actualizar la lista desde el formulario de Empoderamientos,
  *            abrir/cerrar nominaciones.
@@ -34,8 +34,10 @@ const CONFIG = {
   // actualización de la lista: si el nombre ya existe se mueve, si no, se agrega.
   HOJA_AJUSTES: 'Ajustes',
 
+  // Valores que se votan. Empoderamiento se quitó de la votación el 2026-10-08: las nominaciones
+  // que ya tenía se quedan en la hoja, pero Conteo solo cuenta los valores de esta lista.
   VALORES: ['Gratitud', 'Ritmo', 'Actitud', 'Ambición', 'Calidad', 'Creatividad',
-            'Integridad', 'Equipo', 'Empoderamiento'],
+            'Integridad', 'Equipo'],
 
   // true = cada persona puede enviar sus nominaciones una sola vez.
   UN_ENVIO_POR_PERSONA: true,
@@ -144,7 +146,7 @@ function doGet(e) {
 
 /**
  * POST: { nominador: {nombre, unidad, sucursal, area},
- *         nominaciones: [{valor, unidad, sucursal, area, nominado, motivo}] × 9 }
+ *         nominaciones: [{valor, unidad, sucursal, area, nominado, motivo}], una por valor }
  * El formulario lo manda como texto plano para evitar el permiso previo (CORS) del navegador.
  */
 function doPost(e) {
@@ -309,12 +311,15 @@ function validar_(d) {
   if (!nominador) throw new Error('No encontré tu nombre en la lista. Recarga la página y búscate de nuevo.');
 
   const lista = Array.isArray(d.nominaciones) ? d.nominaciones : [];
+  // Solo cuentan los valores vigentes: si alguien tenía abierta una versión anterior de la página
+  // (por ejemplo, con Empoderamiento), esa nominación se descarta sin marcar error
   const porValor = {};
-  lista.forEach(x => { porValor[limpiar_(x && x.valor)] = x; });
+  lista.forEach(x => {
+    const v = limpiar_(x && x.valor);
+    if (CONFIG.VALORES.indexOf(v) >= 0) porValor[v] = x;
+  });
   const faltan = CONFIG.VALORES.filter(v => !porValor[v]);
-  if (faltan.length || lista.length !== CONFIG.VALORES.length) {
-    throw new Error('Faltan nominaciones en: ' + (faltan.join(', ') || 'algún valor') + '.');
-  }
+  if (faltan.length) throw new Error('Faltan nominaciones en: ' + faltan.join(', ') + '.');
   const nominaciones = CONFIG.VALORES.map(valor => {
     const x = porValor[valor];
     const nominado = buscarPersona_(unidades, x, 'nominado');
@@ -657,17 +662,19 @@ function prepararHojas_(ss) {
     nom.setColumnWidth(8, 420);
   }
   const conteo = ss.getSheetByName(HOJAS.CONTEO) || ss.insertSheet(HOJAS.CONTEO);
-  if (conteo.getRange('A1').getFormula().indexOf('max(D)') < 0) {
+  // Solo los valores que se votan hoy (CONFIG.VALORES); si la lista cambia, la fórmula se actualiza sola
+  const filtro = 'C matches \'' + CONFIG.VALORES.join('|') + '\'';
+  if (conteo.getRange('A1').getFormula().indexOf(filtro) < 0) {
     // Por valor y nominado (misma persona = mismo nombre, aunque esté en dos unidades, sucursales
     // o negocios); dentro de cada valor, de más a menos nominaciones
     conteo.getRange('A1').setFormula(
       '=IFERROR(QUERY(' + HOJAS.NOMINACIONES + '!A:H, "select C, G, max(D), max(E), max(F), count(A) ' +
-      'where G <> \'\' group by C, G order by C, count(A) desc ' +
+      'where G <> \'\' and ' + filtro + ' group by C, G order by C, count(A) desc ' +
       'label max(D) \'Unidad de Negocio\', max(E) \'Sucursal\', max(F) \'Área\', count(A) \'Nominaciones\'", 1), ' +
       '"Aún no hay nominaciones")');
     // Total por valor
     conteo.getRange('H1').setFormula(
-      '=IFERROR(QUERY(' + HOJAS.NOMINACIONES + '!A:H, "select C, count(A) where G <> \'\' ' +
+      '=IFERROR(QUERY(' + HOJAS.NOMINACIONES + '!A:H, "select C, count(A) where G <> \'\' and ' + filtro + ' ' +
       'group by C order by count(A) desc label C \'Valor (total)\', count(A) \'Nominaciones\'", 1), "")');
     conteo.setFrozenRows(1);
   }

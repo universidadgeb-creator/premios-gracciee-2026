@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nominaciones · Premios GRACCIEE 2026</title>
-  <meta name="description" content="Nomina a tus compañeras y compañeros en los 9 valores de los Premios GRACCIEE 2026 de Grupo Empresarial Bienestar.">
+  <meta name="description" content="Nomina a tus compañeras y compañeros en los valores de los Premios GRACCIEE 2026 de Grupo Empresarial Bienestar.">
   <meta name="theme-color" content="#f8f3e9">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%238f4418'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='38' font-weight='700' fill='%23f8f3e9'%3EG%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,7 +47,7 @@
       <p>¡Gracias por participar en los Premios GRACCIEE 2026!</p>
     </section>
 
-    <!-- Asistente: ¿quién eres? → 9 valores → revisión. Cada paso se dibuja desde app.js -->
+    <!-- Asistente: ¿quién eres? → un paso por valor → revisión. Cada paso se dibuja desde app.js -->
     <section id="asistente" class="tarjeta" hidden>
       <div class="progreso">
         <div class="progreso__fila">
@@ -62,7 +62,7 @@
     <section id="gracias" class="tarjeta gracias" hidden tabindex="-1">
       <div class="gracias__icono" aria-hidden="true">✓</div>
       <h2>¡Gracias, <span id="gracias-nombre"></span>!</h2>
-      <p>Tus 9 nominaciones quedaron registradas. Cada una reconoce algo que hace que GEB sea extraordinario.</p>
+      <p>Tus <span id="gracias-total"></span> nominaciones quedaron registradas. Cada una reconoce algo que hace que GEB sea extraordinario.</p>
       <button type="button" class="boton boton--secundario" id="otra-persona">Otra persona va a nominar desde este dispositivo</button>
     </section>
   </main>

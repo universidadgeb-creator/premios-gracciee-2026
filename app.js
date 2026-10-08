@@ -14,7 +14,7 @@
   const DATOS_DEMO = {
     ok: true,
     abierto: true,
-    valores: ['Gratitud', 'Ritmo', 'Actitud', 'Ambición', 'Calidad', 'Creatividad', 'Integridad', 'Equipo', 'Empoderamiento'],
+    valores: ['Gratitud', 'Ritmo', 'Actitud', 'Ambición', 'Calidad', 'Creatividad', 'Integridad', 'Equipo'],
     unidades: [
       { nombre: 'Center', sucursales: [{ nombre: '', areas: [{ nombre: '', personas: ['Laura Gómez Díaz', 'Patricia Lara Solís', 'Ricardo Salas Vega'] }] }] },
       { nombre: 'EasyFit', sucursales: [
@@ -43,7 +43,7 @@
 
   let catalogo = null;
   let valores = [];
-  // paso: 0 = ¿quién eres?, 1..9 = un valor cada uno, 10 = revisión
+  // paso: 0 = ¿quién eres?, 1..N = un valor cada uno (N = valores que manda el servidor), N+1 = revisión
   let estado = nuevoEstado();
 
   function nuevoEstado() {
@@ -287,6 +287,7 @@
       }
       borrarLocal(CLAVE_BORRADOR);
       $('gracias-nombre').textContent = estado.nominador.nombre.split(' ')[0];
+      $('gracias-total').textContent = String(valores.length);
       mostrar('gracias');
       document.body.classList.remove('en-curso');
       window.scrollTo({ top: 0, behavior: 'smooth' });
