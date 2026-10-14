@@ -186,6 +186,7 @@ function administrar_(p) {
   const clave = typeof ADMIN_CLAVE === 'string' ? ADMIN_CLAVE : '';
   if (!clave || p.admin !== clave) throw new Error('No autorizado.');
   if (p.accion === 'actualizar') return { ok: true, resumen: importarColaboradores_(fuente_()) };
+  if (p.accion === 'participacion') return { ok: true, participacion: participacion_() };
   if (p.accion === 'menciones') { // cuántas veces aparece un nombre en Nominaciones (solo conteos)
     const hoja = prepararHojas_(SpreadsheetApp.getActiveSpreadsheet());
     const filas = hoja.getLastRow() > 1 ? hoja.getRange(2, 1, hoja.getLastRow() - 1, COLUMNAS.length).getValues() : [];
@@ -208,6 +209,30 @@ function administrar_(p) {
     return { ok: true, resumen: importarColaboradores_(fuente_()) };
   }
   throw new Error('Acción desconocida.');
+}
+
+/**
+ * Participación (solo conteos): personas de la lista que ya enviaron sus nominaciones, por unidad y
+ * por unidad · sucursal. Una persona en dos lugares cuenta en ambos, pero una sola vez en el total.
+ */
+function participacion_() {
+  const nom = prepararHojas_(SpreadsheetApp.getActiveSpreadsheet());
+  const filas = nom.getLastRow() > 1 ? nom.getRange(2, 1, nom.getLastRow() - 1, COLUMNAS.length).getValues() : [];
+  const enviaron = new Set(filas.map(f => clave_(f[1])));
+  const grupos = {};
+  const agregar = (k, nombre) => (grupos[k] = grupos[k] || new Set()).add(clave_(nombre));
+  catalogo_().unidades.forEach(u => u.sucursales.forEach(s => s.areas.forEach(a => a.personas.forEach(n => {
+    agregar('*', n);
+    agregar(u.nombre, n);
+    if (s.nombre) agregar(u.nombre + ' | ' + s.nombre, n);
+  }))));
+  const resultado = {};
+  Object.keys(grupos).forEach(k => {
+    let si = 0;
+    grupos[k].forEach(x => { if (enviaron.has(x)) si++; });
+    resultado[k] = { total: grupos[k].size, nominaron: si };
+  });
+  return { corte: new Date().toISOString(), envios: new Set(filas.map(f => f[11])).size, grupos: resultado };
 }
 
 /** Escribe en la pestaña Ajustes [[Nombre, Unidad, Sucursal, Área], ...]: reemplaza todo o agrega al final. */
