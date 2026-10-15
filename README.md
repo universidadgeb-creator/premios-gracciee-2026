@@ -1,6 +1,6 @@
-# Premios GRACCIEE 2026 · Formulario de nominaciones
+# Premios GRAACCIEE 2026 · Formulario de nominaciones
 
-Formulario web para que cada colaborador de Grupo Empresarial Bienestar nomine a una persona **en cada uno de los valores** GRACCIEE que se votan: Gratitud, Ritmo, Actitud, Ambición, Calidad, Creatividad, Integridad y Equipo (Empoderamiento se quitó de la votación el 8 de octubre de 2026; la lista está en `CONFIG.VALORES` del Apps Script).
+Formulario web para que cada colaborador de Grupo Empresarial Bienestar nomine a una persona **en cada uno de los valores** GRAACCIEE que se votan: Gratitud, Ritmo, Actitud, Ambición, Calidad, Creatividad, Integridad y Equipo (Empoderamiento se quitó de la votación el 8 de octubre de 2026; la lista está en `CONFIG.VALORES` del Apps Script).
 
 **Cómo lo vive quien nomina**
 1. **¿Quién eres?** Se elige de la lista (por unidad y área/sucursal, o buscándose por nombre).
@@ -20,7 +20,7 @@ Todo con la cuenta **@gebienestar.com.mx** (de preferencia en una ventana de inc
 
 1. **Hoja y script**: crea una hoja de cálculo nueva → **Extensiones › Apps Script** → borra lo que haya, pega todo `apps-script/Codigo.gs` y guarda (Ctrl + S).
 2. **Autorizar**: en el desplegable de funciones elige **`configurar`** (no `onOpen`) → **▷ Ejecutar** → autoriza. Si aparece "Google no verificó esta app": *Configuración avanzada › Ir a… › Permitir*.
-3. **Lista de colaboradores**: recarga la hoja → menú **GRACCIEE › Actualizar lista desde Empoderamientos** → pega el link del formulario de Empoderamientos. Se llena la pestaña **Colaboradores** (Vivo 47 por área, EasyFit por sucursal, GEB y Center directo).
+3. **Lista de colaboradores**: recarga la hoja → menú **GRAACCIEE › Actualizar lista desde Empoderamientos** → pega el link del formulario de Empoderamientos. Se llena la pestaña **Colaboradores** (Vivo 47 por área, EasyFit por sucursal, GEB y Center directo).
 4. **Publicar el backend**: **Implementar › Nueva implementación** → engrane → **Aplicación web** → Ejecutar como: **Yo** · Quién tiene acceso: **Cualquier usuario** → copia la URL que termina en `/exec`.
 5. **Conectar la página**: pega esa URL en `config.js` (`API_URL: 'https://script.google.com/macros/s/…/exec'`) y súbelo a GitHub. Sin URL, la página funciona en **modo de prueba** con nombres inventados.
 
@@ -28,12 +28,12 @@ Todo con la cuenta **@gebienestar.com.mx** (de preferencia en una ventana de inc
 - **Nominaciones**: una fila por nominación (una por valor): Fecha · Nominador · Valor · Unidad · Sucursal · Área · Nominado · Motivo, más los datos de quien nominó y un ID de envío.
 - **Conteo**: nominaciones por valor y persona, de más a menos; a la derecha, total por valor.
 - **Participación**: toda la lista con "Sí" / "Pendiente" según si ya envió sus nominaciones (primero los pendientes) y un resumen "Ya nominaron: X de Y".
-- Menú **GRACCIEE**:
+- Menú **GRAACCIEE**:
   - **Actualizar lista desde Empoderamientos**: vuelve a leer la lista (por ejemplo, si RH agregó gente allá).
   - **Refrescar formulario**: si editaste a mano la pestaña Colaboradores, para que la página lo tome al momento (si no, en ~5 minutos).
   - **Cerrar / Abrir nominaciones**.
 - Si alguien envió por otra persona, borra sus filas en **Nominaciones** (mismo "Envío") y ya podrá enviar.
-- **Ajustes**: personas que faltan en Empoderamientos (por ejemplo Nuevos Negocios: Acton, Clínica, Onara, Seven) o que están en otra unidad. Columnas: Nombre · Unidad de Negocio · Sucursal · Área. Si el nombre ya existe se mueve; si no, se agrega. Se aplica cada vez que usas **GRACCIEE › Actualizar lista desde Empoderamientos**. No edites Colaboradores a mano: se reescribe en cada actualización.
+- **Ajustes**: personas que faltan en Empoderamientos (por ejemplo Nuevos Negocios: Acton, Clínica, Onara, Seven) o que están en otra unidad. Columnas: Nombre · Unidad de Negocio · Sucursal · Área. Si el nombre ya existe se mueve; si no, se agrega. Se aplica cada vez que usas **GRAACCIEE › Actualizar lista desde Empoderamientos**. No edites Colaboradores a mano: se reescribe en cada actualización.
 
 ## Si cambias el código
 - **Página**: súbela a GitHub; Pages se actualiza sola.
@@ -46,7 +46,7 @@ Todo con la cuenta **@gebienestar.com.mx** (de preferencia en una ventana de inc
 - **Errores de permisos o "No item with the given ID"**: Apps Script está usando tu cuenta personal; usa una ventana de incógnito solo con la cuenta @gebienestar.
 
 ## Instalación actual
-- Hoja: **Premios GRACCIEE 2026 · Nominaciones** (Drive de universidad@gebienestar.com.mx), con su Apps Script vinculado.
+- Hoja: **Premios GRAACCIEE 2026 · Nominaciones** (Drive de universidad@gebienestar.com.mx), con su Apps Script vinculado.
 - El link del formulario de Empoderamientos vive en `apps-script/Privado.gs`, que se sube a Apps Script pero **no** a GitHub. Si la pestaña Colaboradores está vacía, el script la llena solo desde ese link.
 
 ## Subir cambios del Apps Script con clasp

@@ -1,5 +1,5 @@
-/* Premios GRACCIEE 2026 · Formulario de nominaciones
-   Colores del cartel "Nominados": tinto, cobre (logo GRACCIEE), bronce y crema.
+/* Premios GRAACCIEE 2026 · Formulario de nominaciones
+   Colores del cartel "Nominados": tinto, cobre (logo GRAACCIEE), bronce y crema.
    Los colores están en las variables de :root. */
 
 :root {
@@ -11,7 +11,7 @@
   --acento: #8f4418;           /* cobre: color principal (botones, letras, avance, selección) */
   --acento-texto: #6d0e1b;     /* tinto: solo detalles (etiquetas pequeñas, enlaces, papel picado) */
   --acento-suave: #f4e6d6;
-  --cobre: #8f4418;            /* cobre del logo GRACCIEE */
+  --cobre: #8f4418;            /* cobre del logo GRAACCIEE */
   --cobre-suave: #fbf5ec;
   --boton: #8f4418;
   --boton-texto: #fff8ef;
@@ -123,7 +123,7 @@ h1 span { color: var(--cobre); }
 .letras {
   display: flex;
   justify-content: center;
-  gap: 6px;
+  gap: clamp(3px, 1.2vw, 6px);
   margin: 0 0 22px;
   padding: 0;
   list-style: none;
@@ -131,7 +131,7 @@ h1 span { color: var(--cobre); }
 .letras li {
   display: grid;
   place-items: center;
-  width: 30px;
+  width: clamp(24px, 7.4vw, 30px);
   height: 32px;
   border-radius: 8px;
   background: var(--acento);

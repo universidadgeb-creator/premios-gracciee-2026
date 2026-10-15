@@ -2,7 +2,7 @@
   "name": "premios-gracciee-2026",
   "version": "1.0.0",
   "private": true,
-  "description": "Formulario web de nominaciones Premios GRACCIEE 2026 (GitHub Pages + Apps Script)",
+  "description": "Formulario web de nominaciones Premios GRAACCIEE 2026 (GitHub Pages + Apps Script)",
   "scripts": {
     "login": "clasp login",
     "vincular": "node vincular.js",

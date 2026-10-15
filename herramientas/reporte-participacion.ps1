@@ -1,4 +1,4 @@
-﻿# Imagen de participación (Premios GRACCIEE 2026) con los colores del cartel.
+﻿# Imagen de participación (Premios GRAACCIEE 2026) con los colores del cartel.
 param([string]$Datos, [string]$Salida, [string]$Logo)
 Add-Type -AssemblyName System.Drawing
 
@@ -81,7 +81,7 @@ if ($Logo -and (Test-Path -LiteralPath $Logo)) {
   $y += $alto + 44
 }
 $fTitulo = F 'Georgia' 60 'Bold'
-$partes = @(@('Premios ', $cafe), @('GRACCIEE', $cobre), @(' 2026', $cafe))
+$partes = @(@('Premios ', $cafe), @('GRAACCIEE', $cobre), @(' 2026', $cafe))
 $anchoTotal = 0; foreach ($pt in $partes) { $anchoTotal += $g.MeasureString($pt[0], $fTitulo, 2000, $tipo).Width }
 $x = ($W - $anchoTotal) / 2
 foreach ($pt in $partes) { $g.DrawString($pt[0], $fTitulo, (B $pt[1]), $x, $y, $tipo); $x += $g.MeasureString($pt[0], $fTitulo, 2000, $tipo).Width }

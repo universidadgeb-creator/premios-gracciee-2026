@@ -1,6 +1,6 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════
- *  PREMIOS GRACCIEE 2026 · Backend del formulario web
+ *  PREMIOS GRAACCIEE 2026 · Backend del formulario web
  *  Universidad GEB · Capital Humano
  * ═══════════════════════════════════════════════════════════════════════
  *
@@ -9,14 +9,14 @@
  *            (pestaña "Colaboradores": Unidad de Negocio | Sucursal | Área | Nombre).
  *   - POST → recibe las nominaciones de una persona (una por valor) y las guarda
  *            en la pestaña "Nominaciones". Cada persona puede enviar una sola vez.
- *   - Menú GRACCIEE → actualizar la lista desde el formulario de Empoderamientos,
+ *   - Menú GRAACCIEE → actualizar la lista desde el formulario de Empoderamientos,
  *            abrir/cerrar nominaciones.
  *
  *  CÓMO INSTALARLO (una sola vez)
  *   1. En una hoja de cálculo nueva: Extensiones > Apps Script. Pega este archivo y guarda (Ctrl + S).
  *   2. En el desplegable de funciones elige  configurar  y da clic en ▷ Ejecutar. Autoriza con tu
  *      cuenta @gebienestar.com.mx.
- *   3. Recarga la hoja y usa  GRACCIEE > Actualizar lista desde Empoderamientos  (te pide el link
+ *   3. Recarga la hoja y usa  GRAACCIEE > Actualizar lista desde Empoderamientos  (te pide el link
  *      del formulario de Empoderamientos una sola vez).
  *   4. Implementar > Nueva implementación > engrane > "Aplicación web":
  *        Ejecutar como: Yo   ·   Quién tiene acceso: Cualquier usuario
@@ -68,7 +68,7 @@ const PROP = { CERRADO: 'GRACCIEE_CERRADO', FUENTE: 'GRACCIEE_FORM_EMPODERAMIENT
 function onOpen() {
   try {
     SpreadsheetApp.getUi()
-      .createMenu('GRACCIEE')
+      .createMenu('GRAACCIEE')
       .addItem('Actualizar lista desde Empoderamientos', 'actualizarListaDesdeEmpoderamientos')
       .addItem('Refrescar formulario (después de editar Colaboradores)', 'refrescarLista')
       .addSeparator()
@@ -100,7 +100,7 @@ function configurar() {
   let lista = '';
   if (fuente_() && colab.getLastRow() < 2) lista = '\n\n' + importarColaboradores_(fuente_());
   avisar_('Pestañas listas.' + (lista ||
-    '\n\nSiguiente paso: recarga la hoja y usa GRACCIEE > Actualizar lista desde Empoderamientos.') +
+    '\n\nSiguiente paso: recarga la hoja y usa GRAACCIEE > Actualizar lista desde Empoderamientos.') +
     '\n\nPara publicar: Implementar > Nueva implementación > Aplicación web ' +
     '(Ejecutar como: Yo · Acceso: Cualquier usuario) y copia la URL /exec a config.js.');
 }
@@ -258,7 +258,7 @@ function hojaAjustes_(ss) {
   const nota = 'Aquí van las personas que faltan en Empoderamientos o que están en otra unidad. ' +
     'Si el nombre ya existe en la lista, se mueve; si no, se agrega. Si escribes a la misma persona dos veces, ' +
     'aparece en los dos lugares. Para sacar a alguien de la lista, escribe QUITAR en Unidad de Negocio. ' +
-    'Después usa GRACCIEE › Actualizar lista.';
+    'Después usa GRAACCIEE › Actualizar lista.';
   if (hoja.getRange('F1').getValue() !== nota) hoja.getRange('F1').setValue(nota);
   return hoja;
 }
@@ -449,7 +449,7 @@ function actualizarListaDesdeEmpoderamientos() {
   if (!url) {
     let ui;
     try { ui = SpreadsheetApp.getUi(); } catch (e) {
-      throw new Error('Ejecuta esta opción desde el menú GRACCIEE de la hoja (ahí te pide el link).');
+      throw new Error('Ejecuta esta opción desde el menú GRAACCIEE de la hoja (ahí te pide el link).');
     }
     const r = ui.prompt('Lista de colaboradores', 'Pega el link del formulario de Empoderamientos:', ui.ButtonSet.OK_CANCEL);
     if (r.getSelectedButton() !== ui.Button.OK) return;
@@ -738,7 +738,7 @@ function json_(objeto) {
 function avisar_(mensaje) {
   Logger.log(mensaje);
   try {
-    SpreadsheetApp.getUi().alert('Premios GRACCIEE', mensaje, SpreadsheetApp.getUi().ButtonSet.OK);
+    SpreadsheetApp.getUi().alert('Premios GRAACCIEE', mensaje, SpreadsheetApp.getUi().ButtonSet.OK);
   } catch (e) { /* desde el editor no hay ventana: basta con el registro */ }
 }
 

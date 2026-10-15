@@ -1,6 +1,6 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════
- *  PREMIOS GRACCIEE 2026 · Formulario de nominaciones
+ *  PREMIOS GRAACCIEE 2026 · Formulario de nominaciones
  *  Universidad GEB · Capital Humano
  * ═══════════════════════════════════════════════════════════════════════
  *
@@ -10,9 +10,9 @@
  *   3. Arriba, en el desplegable de funciones, elige  crearFormulario  (NO "onOpen")
  *      y da clic en ▷ Ejecutar.
  *   4. Autoriza con tu cuenta @gebienestar.com.mx.
- *   5. Cuando termine, los links están en la pestaña "Config GRACCIEE" de la hoja.
+ *   5. Cuando termine, los links están en la pestaña "Config GRAACCIEE" de la hoja.
  *
- *  FUNCIONES QUE PUEDES EJECUTAR (también están en el menú "GRACCIEE" de la hoja)
+ *  FUNCIONES QUE PUEDES EJECUTAR (también están en el menú "GRAACCIEE" de la hoja)
  *   - revisarColaboradores ............ prueba: dice cuántas secciones se crearían, sin crear nada
  *   - crearFormulario ................. crea el formulario (si tarda, se pausa y sigue sola)
  *   - consolidarNominaciones .......... rehace la pestaña "Nominaciones" con todas las respuestas
@@ -35,7 +35,7 @@ const CONFIG = {
   // se detiene y te avisa. Pon '' para no revisar.
   DOMINIO_ESPERADO: 'gebienestar.com.mx',
 
-  TITULO: 'Nominaciones Premios GRACCIEE 2026',
+  TITULO: 'Nominaciones Premios GRAACCIEE 2026',
   DESCRIPCION:
     'Gracias por esa chispa de consciencia, amor y acción que transforma lo ordinario en ' +
     'extraordinario e impulsa 1% que lo cambia todo.\n\n' +
@@ -74,7 +74,7 @@ const TXT = {
   MOTIVO: '¿Qué hizo esta persona que refleje este valor?',
 };
 
-const HOJAS = { CONFIG: 'Config GRACCIEE', NOMINACIONES: 'Nominaciones', CONTEO: 'Conteo' };
+const HOJAS = { CONFIG: 'Config GRAACCIEE', NOMINACIONES: 'Nominaciones', CONTEO: 'Conteo' };
 const COLUMNAS_NOMINACIONES = ['Fecha', 'Nominador', 'Valor', 'Unidad de Negocio', 'Sucursal',
                                'Área', 'Nominado', 'Motivo'];
 const PROP = { ESTADO: 'GRACCIEE_ESTADO', FIJOS: 'GRACCIEE_FIJOS', MAPA: 'GRACCIEE_MAPA' };
@@ -92,7 +92,7 @@ const PROP = { ESTADO: 'GRACCIEE_ESTADO', FIJOS: 'GRACCIEE_FIJOS', MAPA: 'GRACCI
 function onOpen() {
   try {
     SpreadsheetApp.getUi()
-      .createMenu('GRACCIEE')
+      .createMenu('GRAACCIEE')
       .addItem('Crear formulario', 'crearFormulario')
       .addItem('Consolidar nominaciones', 'consolidarNominaciones')
       .addItem('Activar consolidación automática', 'activarConsolidacionAutomatica')
@@ -647,8 +647,8 @@ function escribirConfig_(ss, textoEstado, estado, plan) {
 function avisar_(mensaje, conVentana) {
   Logger.log(mensaje);
   try {
-    if (conVentana) SpreadsheetApp.getUi().alert('Premios GRACCIEE', mensaje, SpreadsheetApp.getUi().ButtonSet.OK);
-    else SpreadsheetApp.getActive().toast(mensaje, 'Premios GRACCIEE', 8);
+    if (conVentana) SpreadsheetApp.getUi().alert('Premios GRAACCIEE', mensaje, SpreadsheetApp.getUi().ButtonSet.OK);
+    else SpreadsheetApp.getActive().toast(mensaje, 'Premios GRAACCIEE', 8);
   } catch (e) { /* desde el editor o un activador no hay ventana: basta con el registro */ }
 }
 

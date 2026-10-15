@@ -25,7 +25,7 @@ if (fs.existsSync(config)) {
 const clasp = '"' + path.join(__dirname, 'node_modules', '.bin', process.platform === 'win32' ? 'clasp.cmd' : 'clasp') + '"';
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'gracciee-'));
 try {
-  execSync(clasp + ' create-script --parentId ' + id + ' --title "Premios GRACCIEE 2026"', { cwd: tmp, stdio: 'inherit' });
+  execSync(clasp + ' create-script --parentId ' + id + ' --title "Premios GRAACCIEE 2026"', { cwd: tmp, stdio: 'inherit' });
   const { scriptId } = JSON.parse(fs.readFileSync(path.join(tmp, '.clasp.json'), 'utf8'));
   fs.writeFileSync(config, JSON.stringify({ scriptId: scriptId, parentId: [id], rootDir: 'apps-script' }, null, 2) + '\n');
   console.log('\nListo: la hoja quedó vinculada (scriptId ' + scriptId + '). Ahora ejecuta:  npm run subir');

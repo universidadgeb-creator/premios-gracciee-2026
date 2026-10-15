@@ -1,4 +1,4 @@
-/* Premios GRACCIEE 2026 · Formulario de nominaciones
+/* Premios GRAACCIEE 2026 · Formulario de nominaciones
    Flujo: ¿quién eres? → un paso por cada valor (a quién y por qué) → revisión → envío único. */
 (function () {
   'use strict';
